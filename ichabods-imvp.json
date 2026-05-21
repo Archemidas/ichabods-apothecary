@@ -1,0 +1,154 @@
+{
+  "$version": "1.0",
+  "project": {
+    "name": "Ichabod's Apothecary",
+    "tagline": "Plant medicine and the patient art of remembering",
+    "slug": "ichabods",
+    "version": "0.1.0",
+    "intent": "A certified medicinal herbalist program paired with a small apothecary shop — slow community, careful instruction, and remedies vended in collaboration with Red Fawn. Live classes, annotated transcripts that save into each student's personal knowledge store, and shelves of herbal blends, facial steams, and pain-relieving topicals.",
+    "audience": "Aspiring and practicing herbalists. Patient students. Believers in plant medicine as a living tradition."
+  },
+  "domain": {
+    "ontology": {
+      "entities": [
+        { "id": "Student",      "fields": [{"name":"handle","type":"string"},{"name":"tier","type":"Tier"},{"name":"cohort","type":"string"}] },
+        { "id": "Instructor",   "fields": [{"name":"handle","type":"string"},{"name":"specialty","type":"string"}] },
+        { "id": "CourseSession","fields": [{"name":"title","type":"string"},{"name":"unit","type":"string"},{"name":"startsAt","type":"datetime"}] },
+        { "id": "TranscriptLine","fields":[{"name":"text","type":"string"},{"name":"timestamp","type":"number"},{"name":"sessionId","type":"CourseSession"}] },
+        { "id": "Annotation",   "fields": [{"name":"text","type":"string"},{"name":"by","type":"Student"},{"name":"lineId","type":"TranscriptLine"},{"name":"savedAt","type":"datetime"}] },
+        { "id": "Product",      "fields": [{"name":"name","type":"string"},{"name":"vendor","type":"enum:redfawn|ichabods"},{"name":"category","type":"enum:blend|tea|topical|other"},{"name":"price","type":"number"}] }
+      ],
+      "boundedContexts": ["education","commerce","community","knowledge-store"]
+    },
+    "logic": {
+      "rules": [
+        { "id": "gate-live-class",       "when": "user opens portal", "then": "show modal unless tier >= student" },
+        { "id": "annotations-save-private","when":"student saves annotation","then":"persist to student's knowledge store" },
+        { "id": "instructor-sees-all",   "when": "tier === 'instructor' or 'admin'", "then": "can read every student's annotations" },
+        { "id": "shop-vendor-mix",       "when": "rendering shop grid", "then": "show 60% Red Fawn products / 40% Ichabod's mockups" }
+      ]
+    }
+  },
+  "aesthetic": {
+    "designLanguage": "warm",
+    "tokens": {
+      "--bg":       "#F4ECDF",
+      "--bg2":      "#EBDFC8",
+      "--card":     "#FBF6EC",
+      "--card2":    "#F8F0DD",
+      "--ink":      "#1B1816",
+      "--ink-soft": "#3C342B",
+      "--fg":       "#1B1816",
+      "--muted":    "#6F6253",
+      "--border":   "#D6C5A8",
+      "--border2":  "#E2D3B9",
+      "--accent":   "#5B4A2B",
+      "--accent-h": "#3F331E",
+      "--forest":   "#2E4632",
+      "--forest-h": "#1F3122",
+      "--ember":    "#A4471C",
+      "--burgundy": "#6E1F2A",
+      "--amber":    "#C8902A",
+      "--gold":     "#B5894A",
+      "--cream":    "#FBF6EC",
+      "--ink-line": "#231D17"
+    },
+    "fonts": [
+      { "family": "Cinzel",            "weights": [400,500,600,700], "role": "display" },
+      { "family": "Cormorant Garamond","weights": [400,500,600,700], "role": "body" },
+      { "family": "Caveat",            "weights": [400,500,600,700], "role": "handwriting" }
+    ],
+    "iconography": "botanical-line-and-alchemical-symbol",
+    "motion": { "easing": "ease-in-out", "duration": "260ms", "philosophy": "slow-careful-apothecary" },
+    "voice": {
+      "tone": "slow-instructive-archaic",
+      "register": "formal",
+      "vocabulary": ["tincture","decoction","poultice","materia medica","monograph","tradition","steeped","cohort","monograph","wildcrafted"],
+      "avoid": ["users","platform","product","customer","leverage"]
+    }
+  },
+  "informationArchitecture": {
+    "pages": [
+      { "id": "home",       "label": "Home",          "route": "/",          "isLanding": true,    "components": ["hero","feature-grid"] },
+      { "id": "shop",       "label": "Shop",          "route": "/shop",      "components": ["shop-grid","cart-pill"] },
+      { "id": "course",     "label": "Course",        "route": "/course",    "components": ["access-picker"] },
+      { "id": "portal",     "label": "Course Portal", "route": "/portal",    "tierRequired": "free", "components": ["video-player","transcript-pane","chat","status-card"] },
+      { "id": "knowledge",  "label": "Knowledge Store","route": "/knowledge","tierRequired": "student","components": ["annotation-list"] },
+      { "id": "archive",    "label": "Archive",       "route": "/archive",   "components": ["archive-grid"] },
+      { "id": "signin",     "label": "Sign In",       "route": "/signin",    "components": ["auth-picker"] },
+      { "id": "admin-login","label": "Admin Login",   "route": "/admin/login","components": ["admin-auth"] },
+      { "id": "admin",      "label": "Admin Portal",  "route": "/admin",     "tierRequired": "instructor", "components": ["stream-control","audience","chat-mod","analytics","archive-manager","all-annotations"] }
+    ]
+  },
+  "roles": [
+    { "id": "none",       "label": "Visitor",    "rank": 0 },
+    { "id": "free",       "label": "Free Tier",  "rank": 1, "auth": "free-access" },
+    { "id": "student",    "label": "Student",    "rank": 2, "auth": "email-magic-link", "badge": "accent" },
+    { "id": "certified",  "label": "Certified Herbalist", "rank": 3, "auth": "credentials", "badge": "amber" },
+    { "id": "instructor", "label": "Instructor", "rank": 4, "auth": "credentials", "credentials": { "username":"instructor","password":"instructor" }, "badge": "forest" },
+    { "id": "admin",      "label": "Admin",      "rank": 5, "auth": "credentials", "credentials": { "username":"admin","password":"admin" }, "badge": "burgundy" }
+  ],
+  "auth": { "primary": "email-magic-link", "secondary": "wallet-eip1193", "admin": "credentials" },
+  "features": [
+    { "id":"video-player",    "kind":"live-stream", "providers":["canvas-sim","theta-edge","youtube","vimeo","rtmp","iptv-m3u","mkv-file","playlist"],
+      "controls":["play-pause","scrub","source-switch","pip","cast","subtitles","minimize","fullscreen","resolution"],
+      "overlays":["reactions","raised-hands","transcript","live-pill","stream-info","captions"], "tierGate":"free" },
+    { "id":"transcript",      "kind":"custom",      "providers":["internal"], "controls":["annotate","save-to-knowledge"], "tierGate":"student" },
+    { "id":"chat",            "kind":"chat",        "providers":["matrix"], "controls":["send","react","mention"], "tierGate":"free" },
+    { "id":"knowledge-store", "kind":"custom",      "providers":["internal"], "controls":["read","edit","delete","export","search","tag","auto-categorize","version-history","free-form-note"], "tierGate":"student", "v2":{ "rankBasedAccess":true, "autoParse":true, "selfCategorizing":true, "searchable":true, "recursiveLearning":true, "evolutionTracking":true } },
+    { "id":"shop",            "kind":"marketplace", "providers":["internal"], "controls":["browse","filter","add-to-cart"], "tierGate":"none" },
+    { "id":"archive",         "kind":"video-archive","providers":["canvas-thumbs"], "controls":["search","play"], "tierGate":"free" },
+    { "id":"admin-portal",    "kind":"custom",      "providers":["internal"], "controls":["stream-control","view-as-toggle","live-preview","moderation","analytics","all-annotations"], "tierGate":"instructor" }
+  ],
+  "simulation": {
+    "personas": [
+      { "id":"willow",   "label":"@willow.fern",     "tier":"student",    "avatar":"WF", "tone":"reverent-questioning" },
+      { "id":"sage",     "label":"@sage.bramble",    "tier":"student",    "avatar":"SB", "tone":"careful-note-taker" },
+      { "id":"rune",     "label":"@rune.ashford",    "tier":"student",    "avatar":"RA", "tone":"poetic-rambling" },
+      { "id":"mara",     "label":"@mara.fieldsong",  "tier":"certified",  "avatar":"MF", "tone":"practical-applied" },
+      { "id":"orin",     "label":"@orin.crane",      "tier":"student",    "avatar":"OC", "tone":"shy-curious" },
+      { "id":"ichabod",  "label":"@ichabod.crane",   "tier":"instructor", "avatar":"IC", "tone":"slow-instructive-archaic" }
+    ],
+    "events": {
+      "transcript-line": { "cadence":"6-12s" },
+      "reaction":        { "cadence":"5-12s",  "weights":{"🌿":0.30,"🕯️":0.15,"🍵":0.20,"✨":0.15,"📖":0.15,"🌙":0.05} },
+      "hand-raise":      { "cadence":"15-30s", "payload":{"autoLowerAfter":"15-25s"} },
+      "annotation":      { "cadence":"on-demand" },
+      "chat-message":    { "cadence":"on-demand" }
+    },
+    "scenarios": [
+      { "id":"first-class", "label":"First class — annotation flow",
+        "steps":[
+          { "set":{"page":"portal","accessTier":"student","currentUser":"@willow.fern"} },
+          { "narrate":"Student arrives in their first session." }, { "wait":"2s" },
+          { "narrate":"Transcription scrolls in line by line." }, { "wait":"3s" },
+          { "narrate":"Student clicks a line to annotate." }, { "wait":"2s" },
+          { "narrate":"Annotation saves to their knowledge store." }, { "wait":"2s" },
+          { "set":{"page":"knowledge"} }
+        ]
+      },
+      { "id":"instructor-view", "label":"Instructor reviews student annotations",
+        "steps":[
+          { "set":{"page":"admin","accessTier":"instructor","adminTab":"annotations"} },
+          { "narrate":"Instructor opens the cohort knowledge view." }, { "wait":"2s" },
+          { "narrate":"Sees every student's notes from the last lesson." }
+        ]
+      }
+    ]
+  },
+  "demoControls": {
+    "stateNav":       {"pages":true,"tiers":true},
+    "identitySwitch": {"personas":true,"credentials":["admin/admin","instructor/instructor"]},
+    "eventInjector":  ["reaction","hand-raise","chat-message","transcript-line","annotation"],
+    "scenarios":      ["first-class","instructor-view"],
+    "reset":          true,
+    "meta":           ["transcript-source","video-src","auth-strategies","shop-vendor-mix"],
+    "position":       "bottom-right",
+    "label":          "Demo Controls"
+  },
+  "i18n": { "default":"en", "supported":["en"], "rtl":[] },
+  "integrations": {
+    "redfawn": { "id":"redfawn-shop", "mock":false, "config":{"vendorShare":0.6,"productCount":16} },
+    "matrix":  { "id":"matrix-org",   "mock":true,  "config":{"room":"!ichabods-circle:matrix.org"} }
+  }
+}

@@ -1,0 +1,4235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ichabod's Apothecary — Plant medicine and the patient art of remembering</title>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13/dist/cdn.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Caveat:wght@400;500;600;700&family=Pinyon+Script&family=IM+Fell+English+SC&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Victorian Gilded Age / Art Nouveau apothecary palette */
+    --bg:       #ECDDBE;  /* aged parchment, warmer */
+    --bg2:      #DCC79A;  /* deeper aged paper */
+    --bg3:      #C9B07A;  /* tea-stained */
+    --card:     #F3E6C8;  /* cream label stock */
+    --card2:    #E6D2A3;  /* sage-tinted cream */
+    --ink:      #1F1812;  /* near-black */
+    --ink2:     #2E251A;  /* sepia ink */
+    --ink-soft: #3C2F1F;
+    --fg:       #1F1812;
+    --muted:    #6F5A3F;  /* aged sepia */
+    --muted2:   #8A744F;
+    --border:   #B89968;  /* gilded brown */
+    --border2:  #D6BB87;
+    --accent:   #6B4E1F;  /* deep gilded brown */
+    --accent-h: #4E3915;
+    --gilded:   #A37A28;  /* gold ink */
+    --gilded-h: #856420;
+    --forest:   #3A4E2E;  /* sage forest */
+    --forest-h: #2A3A22;
+    --ember:    #8F3818;  /* burnt umber red */
+    --burgundy: #6E1F2A;
+    --amber:    #C8902A;
+    --rose:     #9B5C5A;  /* dusty rose */
+    --rose-h:   #804342;
+    --gold:     #B5894A;
+    --cream:    #F8EFD6;
+    --shadow:   rgba(31,24,18,0.18);
+
+    --serif-disp: 'Cinzel', 'IM Fell English SC', 'Georgia', serif;
+    --serif-body: 'Cormorant Garamond', 'Georgia', serif;
+    --serif-old:  'IM Fell English SC', 'Cinzel', serif;
+    --script:     'Pinyon Script', 'Caveat', cursive;
+    --hand:       'Caveat', 'Bradley Hand', cursive;
+    --fraktur:    'UnifrakturMaguntia', 'Cinzel', serif;
+
+    --BH: 26px;
+    --HH: 76px;
+    --TOP: calc(26px + 76px);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--serif-body);
+    font-size: 17px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+  /* Aged paper backdrop with vignette + foxing */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 8%, rgba(58,78,46,0.07) 0, transparent 45%),
+      radial-gradient(ellipse at 82% 92%, rgba(143,56,24,0.06) 0, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(163,122,40,0.04) 0, transparent 70%),
+      radial-gradient(ellipse at 50% 50%, rgba(31,24,18,0.18) 100%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' seed='3'/><feColorMatrix values='0 0 0 0 0.42  0 0 0 0 0.30  0 0 0 0 0.15  0 0 0 0.08 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+    pointer-events: none; z-index: 0; opacity: 0.65;
+    mix-blend-mode: multiply;
+  }
+  .z1 { position: relative; z-index: 1; }
+
+  /* ──────────────────────────────────────────────────────────────
+     ART NOUVEAU ORNAMENT SYSTEM
+     ────────────────────────────────────────────────────────────── */
+
+  /* Frame — drawn with double border + corner SVGs absolutely placed */
+  .nouveau-frame {
+    position: relative;
+    padding: 2rem 1.75rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    box-shadow:
+      inset 0 0 0 6px var(--card),
+      inset 0 0 0 7px var(--gilded),
+      0 4px 18px var(--shadow);
+  }
+  .nouveau-frame.gilded { border-color: var(--gilded); }
+  .nouveau-frame.deep   { background: var(--card2); border-color: var(--accent); }
+
+  /* Corner flourish — absolute positioned SVG holder.  Use 4 of these per frame. */
+  .corner {
+    position: absolute;
+    width: 64px; height: 64px;
+    color: var(--accent);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .corner.tl { top: -2px; left: -2px; }
+  .corner.tr { top: -2px; right: -2px; transform: scaleX(-1); }
+  .corner.bl { bottom: -2px; left: -2px; transform: scaleY(-1); }
+  .corner.br { bottom: -2px; right: -2px; transform: scale(-1, -1); }
+  .corner.gilded { color: var(--gilded); }
+  .corner svg { display: block; width: 100%; height: 100%; }
+
+  /* Horizontal divider — botanical garland */
+  .garland {
+    display: flex; align-items: center;
+    width: 100%;
+    margin: 1.25rem 0;
+    color: var(--accent);
+  }
+  .garland::before, .garland::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(to right, transparent, var(--accent), transparent);
+  }
+  .garland svg { margin: 0 1rem; flex-shrink: 0; }
+  .garland.short { max-width: 320px; margin: 1rem auto; }
+
+  /* Cartouche — oval frame for headings */
+  .cartouche {
+    position: relative;
+    display: inline-block;
+    padding: 0.875rem 2.75rem;
+    background: var(--card);
+    border: 1px solid var(--gilded);
+    box-shadow:
+      inset 0 0 0 3px var(--card),
+      inset 0 0 0 4px var(--accent);
+    color: var(--ink);
+    font-family: var(--serif-disp);
+    font-weight: 600;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    z-index: 1;
+  }
+  .cartouche::before, .cartouche::after {
+    content: '❦';
+    position: absolute;
+    top: 50%; transform: translateY(-50%);
+    color: var(--gilded);
+    font-size: 1rem;
+  }
+  .cartouche::before { left: 0.875rem; }
+  .cartouche::after  { right: 0.875rem; }
+
+  /* Decorative "label" panel (like the vintage apothecary label refs) */
+  .vlabel {
+    position: relative;
+    background: linear-gradient(180deg, var(--card) 0%, var(--card2) 100%);
+    border: 2px solid var(--accent);
+    box-shadow:
+      inset 0 0 0 5px var(--card),
+      inset 0 0 0 6px var(--gilded),
+      inset 0 0 0 8px var(--card),
+      0 6px 28px var(--shadow);
+    padding: 2.5rem 2rem;
+    text-align: center;
+  }
+  .vlabel-banner {
+    position: relative;
+    display: inline-block;
+    padding: 0.4375rem 1.5rem 0.5rem;
+    background: var(--accent);
+    color: var(--cream);
+    font-family: var(--serif-disp);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 2px 6px var(--shadow);
+  }
+  .vlabel-banner::before, .vlabel-banner::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0; width: 14px;
+    background: var(--accent);
+  }
+  .vlabel-banner::before { left: -10px; clip-path: polygon(100% 0, 100% 100%, 0% 50%); }
+  .vlabel-banner::after  { right: -10px; clip-path: polygon(0 0, 0 100%, 100% 50%); }
+
+  /* Script flourish text (small ornamental phrases) */
+  .flourish {
+    font-family: var(--script);
+    font-size: 1.875rem;
+    line-height: 1.1;
+    color: var(--gilded);
+    letter-spacing: 0.01em;
+  }
+
+  /* Drop cap utility */
+  .dropcap::first-letter {
+    font-family: var(--serif-disp);
+    font-weight: 700;
+    font-size: 4.5rem;
+    line-height: 0.85;
+    float: left;
+    padding: 0.5rem 0.625rem 0 0;
+    color: var(--ember);
+  }
+
+  /* Demo banner */
+  .demo-banner {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: var(--BH);
+    background: var(--ink); color: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif-disp);
+    font-size: 0.625rem; font-weight: 500;
+    letter-spacing: 0.20em; text-transform: uppercase;
+    z-index: 300;
+  }
+  .demo-banner .star { color: var(--amber); margin: 0 0.5rem; }
+
+  /* Header — gilded apothecary signboard */
+  .site-header {
+    position: fixed; top: var(--BH); left: 0; right: 0; height: var(--HH);
+    background: linear-gradient(180deg, var(--card) 0%, var(--bg) 100%);
+    border-bottom: 2px solid var(--accent);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem;
+    box-shadow: 0 4px 14px var(--shadow);
+  }
+  .site-header::after {
+    content: '';
+    position: absolute; left: 0; right: 0; bottom: -7px;
+    height: 4px;
+    background: var(--gilded);
+    border-bottom: 1px solid var(--accent);
+  }
+  .apoth-mark {
+    display: flex; align-items: center; gap: 1rem;
+    cursor: pointer; user-select: none;
+    position: relative;
+  }
+  .apoth-glyph {
+    color: var(--accent); flex-shrink: 0;
+    filter: drop-shadow(0 1px 2px var(--shadow));
+  }
+  .apoth-name {
+    font-family: var(--serif-disp);
+    font-weight: 700;
+    font-size: 1.375rem;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--ink);
+    line-height: 1;
+    position: relative;
+  }
+  .apoth-name::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: -6px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gilded), transparent);
+  }
+  .apoth-tag {
+    font-family: var(--script);
+    font-style: normal;
+    font-size: 1.25rem;
+    color: var(--rose);
+    border-left: 1px solid var(--border);
+    padding-left: 0.875rem;
+    margin-left: 0.5rem;
+    line-height: 1;
+  }
+
+  .nav { display: flex; align-items: center; gap: 1.5rem; }
+  .nav-link {
+    background: none; border: none;
+    font-family: var(--serif-disp);
+    font-size: 0.6875rem; font-weight: 500;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--ink-soft); cursor: pointer;
+    transition: color .14s;
+    padding: 0;
+  }
+  .nav-link:hover { color: var(--ember); }
+  .nav-link.is-active { color: var(--ember); }
+  .nav-link.gated::after {
+    content: '◆'; margin-left: 0.3125rem;
+    font-size: 0.5625rem; color: var(--amber);
+  }
+  .nav-pill {
+    padding: 0.375rem 0.875rem;
+    border: 1px solid var(--ink);
+    background: transparent;
+    font-family: var(--serif-disp);
+    font-size: 0.625rem; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink);
+    cursor: pointer;
+    transition: background .14s, color .14s;
+  }
+  .nav-pill:hover { background: var(--ink); color: var(--bg); }
+  .nav-pill.tier-badge { background: var(--forest); border-color: var(--forest); color: var(--bg); }
+
+  .page { padding-top: var(--TOP); }
+
+  /* ── Hero / Home ── */
+  .home-wrap { max-width: 1180px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+
+  /* Hero is now a full vintage apothecary label */
+  .hero-label {
+    position: relative;
+    max-width: 760px;
+    margin: 2rem auto 3rem;
+    padding: 3rem 3rem 2.5rem;
+    background: linear-gradient(180deg, var(--card) 0%, var(--card2) 100%);
+    border: 2px solid var(--accent);
+    box-shadow:
+      inset 0 0 0 6px var(--card),
+      inset 0 0 0 7px var(--gilded),
+      inset 0 0 0 9px var(--card),
+      0 8px 36px var(--shadow);
+    text-align: center;
+  }
+  .hero-label .corner { width: 90px; height: 90px; }
+  .hero-est {
+    font-family: var(--serif-disp);
+    font-size: 0.6875rem;
+    letter-spacing: 0.20em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.625rem;
+  }
+  .hero-title {
+    font-family: var(--serif-disp);
+    font-weight: 700;
+    font-size: clamp(2.25rem, 5vw, 3.625rem);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.0;
+    margin-bottom: 0.5rem;
+    color: var(--ink);
+    text-shadow: 0 1px 2px var(--shadow);
+  }
+  .hero-title .amp {
+    color: var(--rose);
+    font-family: var(--script);
+    font-weight: 400;
+    font-size: 0.6em;
+    letter-spacing: 0;
+    text-transform: none;
+    vertical-align: 0.05em;
+  }
+  .hero-subline {
+    font-family: var(--script);
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    color: var(--rose);
+    margin: 0.25rem 0 1rem;
+    line-height: 1;
+  }
+  .hero-rule {
+    display: flex; align-items: center; justify-content: center; gap: 1rem;
+    margin: 1.25rem auto;
+    max-width: 480px;
+    color: var(--accent);
+  }
+  .hero-rule::before, .hero-rule::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(to right, transparent, var(--accent), transparent);
+  }
+  .hero-rule .rule-mark {
+    font-family: var(--serif-disp);
+    font-size: 0.625rem;
+    letter-spacing: 0.30em;
+    color: var(--gilded);
+  }
+  .hero-tagline {
+    font-family: var(--serif-body);
+    font-style: italic;
+    font-size: clamp(1.0625rem, 1.8vw, 1.3125rem);
+    color: var(--ink-soft);
+    max-width: 540px; margin: 0 auto 1.25rem;
+    line-height: 1.5;
+  }
+  .hero-address {
+    font-family: var(--serif-disp);
+    font-size: 0.625rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 1rem;
+  }
+
+  /* Feature grid */
+  .feat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+  @media (max-width: 720px) { .feat-grid { grid-template-columns: 1fr; } }
+
+  .feat-card {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--accent);
+    box-shadow:
+      inset 0 0 0 4px var(--card),
+      inset 0 0 0 5px var(--gilded),
+      0 4px 18px var(--shadow);
+    padding: 2.25rem 1.875rem 1.875rem;
+    transition: transform .2s, box-shadow .2s;
+    cursor: pointer;
+  }
+  .feat-card:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      inset 0 0 0 4px var(--card),
+      inset 0 0 0 5px var(--gilded),
+      0 10px 28px var(--shadow);
+  }
+  .feat-card.faded { opacity: 0.5; cursor: default; }
+  .feat-card.faded:hover { transform: none; }
+  .feat-card .corner { width: 48px; height: 48px; color: var(--gilded); }
+  .feat-badge {
+    display: inline-block;
+    font-family: var(--serif-disp);
+    font-size: 0.625rem; font-weight: 700;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    padding: 0.25rem 0.75rem;
+    margin-bottom: 1rem;
+    border: 1px solid currentColor;
+  }
+  .feat-badge.active { background: var(--accent); color: var(--cream); border-color: var(--accent); }
+  .feat-badge.soon   { color: var(--muted); }
+  .feat-title {
+    font-family: var(--serif-disp);
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.4375rem;
+    color: var(--ink);
+  }
+  .feat-title-script {
+    display: block;
+    font-family: var(--script);
+    font-size: 1.625rem;
+    color: var(--rose);
+    letter-spacing: 0;
+    text-transform: none;
+    margin-top: -0.125rem;
+    margin-bottom: 0.4375rem;
+  }
+  .feat-desc {
+    font-family: var(--serif-body);
+    font-size: 1.0625rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+  .feat-cta {
+    margin-top: 1rem;
+    font-family: var(--serif-disp);
+    font-size: 0.75rem; font-weight: 600;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--ember);
+    display: inline-flex; align-items: center; gap: 0.5rem;
+  }
+  .feat-cta::after { content: '❦'; color: var(--gilded); }
+
+  /* Quote rail — ornamental pull-quote with botanical garland above */
+  .quote-rail {
+    margin: 5rem auto 4rem;
+    text-align: center;
+    max-width: 720px;
+    padding: 0 1.5rem;
+    position: relative;
+  }
+  .quote-rail .ornament-top, .quote-rail .ornament-bot {
+    color: var(--gilded);
+    margin: 0 auto 1.25rem;
+  }
+  .quote-rail .ornament-bot { margin: 1.25rem auto 0; }
+  .quote-rail blockquote {
+    font-family: var(--script);
+    font-style: normal;
+    font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+    line-height: 1.3;
+    color: var(--ink);
+    margin-bottom: 1.25rem;
+    position: relative;
+    letter-spacing: 0.01em;
+  }
+  .quote-rail cite {
+    font-family: var(--serif-disp);
+    font-size: 0.6875rem; font-weight: 600;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--muted);
+    font-style: normal;
+  }
+
+  /* Botanical home accent — three apothecary jars row */
+  .jar-row {
+    display: flex; justify-content: center; gap: 2.5rem;
+    margin: 3rem auto 1.5rem;
+    color: var(--accent);
+    flex-wrap: wrap;
+  }
+  .jar-row svg { filter: drop-shadow(0 2px 4px var(--shadow)); }
+  .jar-row .jar-cap {
+    font-family: var(--serif-disp);
+    font-size: 0.625rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 0.5rem;
+  }
+
+  /* ── Shop — vintage apothecary shelf ── */
+  .shop-wrap { max-width: 1240px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+  .shop-head {
+    text-align: center;
+    padding: 2.5rem 1.5rem 2.5rem;
+    margin-bottom: 2.5rem;
+    background: var(--card);
+    border: 2px solid var(--accent);
+    box-shadow:
+      inset 0 0 0 5px var(--card),
+      inset 0 0 0 6px var(--gilded),
+      0 4px 18px var(--shadow);
+    position: relative;
+  }
+  .shop-head .corner { width: 56px; height: 56px; color: var(--gilded); }
+  .shop-head .est-line {
+    font-family: var(--serif-disp);
+    font-size: 0.625rem;
+    letter-spacing: 0.20em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .shop-head h1 {
+    font-family: var(--serif-disp);
+    font-weight: 700;
+    font-size: clamp(1.875rem, 4vw, 2.75rem);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 0.4375rem;
+    color: var(--ink);
+  }
+  .shop-head .script {
+    font-family: var(--script);
+    font-size: clamp(1.375rem, 2.5vw, 1.875rem);
+    color: var(--rose);
+    margin-bottom: 0.75rem;
+  }
+  .shop-head p {
+    font-family: var(--serif-body);
+    font-style: italic;
+    color: var(--ink-soft);
+    font-size: 1.0625rem;
+    max-width: 580px; margin: 0 auto;
+    line-height: 1.5;
+  }
+  .vendor-notice {
+    display: inline-flex; align-items: center; gap: 0.75rem;
+    margin-top: 1rem;
+    font-family: var(--serif-disp);
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ember);
+    padding: 0.375rem 0.875rem;
+    border: 1px solid var(--ember);
+    background: rgba(143,56,24,0.06);
+  }
+  .vendor-notice .pip { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* Shop filters */
+  .shop-filters {
+    display: flex; gap: 0.5rem; flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+  }
+  .filter-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 0.4375rem 1rem;
+    font-family: var(--serif-disp);
+    font-size: 0.625rem; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-soft); cursor: pointer;
+    transition: all .14s;
+    box-shadow: 0 1px 2px var(--shadow);
+  }
+  .filter-btn:hover { background: var(--card2); border-color: var(--accent); color: var(--ink); }
+  .filter-btn.is-active {
+    background: var(--accent); color: var(--cream); border-color: var(--accent);
+  }
+
+  .shop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 1.75rem 1.25rem;
+  }
+
+  /* Each product card is a tiny vintage label */
+  .prod {
+    background: linear-gradient(180deg, var(--card) 0%, var(--card2) 100%);
+    cursor: pointer;
+    padding: 0.875rem 0.875rem 1rem;
+    border: 1px solid var(--accent);
+    box-shadow:
+      inset 0 0 0 3px var(--card),
+      inset 0 0 0 4px var(--gilded),
+      inset 0 0 0 6px var(--card),
+      0 3px 14px var(--shadow);
+    transition: transform .2s, box-shadow .2s;
+    position: relative;
+  }
+  .prod:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      inset 0 0 0 3px var(--card),
+      inset 0 0 0 4px var(--gilded),
+      inset 0 0 0 6px var(--card),
+      0 8px 22px var(--shadow);
+  }
+  .prod .corner { width: 28px; height: 28px; color: var(--gilded); }
+  .prod-thumb {
+    width: 100%; aspect-ratio: 1 / 1.05;
+    background: var(--card);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+  }
+  .prod-thumb canvas { width: 100%; height: 100%; display: block; }
+  .prod-vendor {
+    position: absolute; top: 0.4375rem; left: 0.4375rem;
+    font-family: var(--serif-disp);
+    font-size: 0.5rem;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    padding: 0.125rem 0.4375rem;
+    background: var(--cream);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .prod-vendor.ichabods { background: var(--accent); color: var(--cream); border-color: var(--accent); }
+  .prod-vendor.redfawn  { background: var(--cream); color: var(--ember); border-color: var(--ember); }
+  .prod-cat {
+    position: absolute; bottom: 0.4375rem; right: 0.4375rem;
+    font-family: var(--script);
+    font-size: 0.9375rem;
+    color: var(--rose);
+  }
+  .prod-name {
+    font-family: var(--serif-disp);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    line-height: 1.3;
+    color: var(--ink);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 0.4375rem;
+    min-height: 2.6em;
+  }
+  .prod-rule {
+    display: flex; align-items: center; justify-content: center;
+    color: var(--gilded);
+    margin: 0.3125rem 0;
+  }
+  .prod-rule::before, .prod-rule::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(to right, transparent, var(--gilded), transparent);
+  }
+  .prod-rule-mark { font-size: 0.6875rem; padding: 0 0.4375rem; }
+  .prod-meta {
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--serif-disp);
+    font-size: 0.625rem;
+    letter-spacing: 0.10em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .prod-price {
+    color: var(--ember);
+    font-weight: 700;
+    font-size: 0.875rem;
+  }
+  .prod-add {
+    width: 100%;
+    margin-top: 0.25rem;
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 0.4375rem 0.625rem;
+    font-family: var(--serif-disp);
+    font-size: 0.5625rem; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--cream);
+    cursor: pointer;
+    transition: all .14s;
+  }
+  .prod-add:hover { background: var(--accent-h); border-color: var(--accent-h); }
+
+  .cart-pill {
+    position: fixed; bottom: 1.5rem; left: 1.5rem;
+    z-index: 350;
+    background: var(--ink); color: var(--bg);
+    border: none;
+    padding: 0.5rem 0.875rem 0.5rem 0.625rem;
+    display: flex; align-items: center; gap: 0.5rem;
+    cursor: pointer;
+    font-family: var(--serif-disp);
+    font-size: 0.6875rem;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    transition: background .14s;
+  }
+  .cart-pill:hover { background: var(--forest); }
+  .cart-icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--amber); color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.875rem;
+  }
+  .cart-count {
+    background: var(--ember); color: var(--bg);
+    padding: 0.0625rem 0.4375rem;
+    font-size: 0.625rem;
+    border-radius: 9999px;
+    margin-left: 0.25rem;
+  }
+
+  /* ── Course portal ══ */
+  .portal-header {
+    position: fixed;
+    top: var(--BH); left: 0; right: 0; height: var(--HH);
+    background: var(--bg);
+    border-bottom: 1px solid var(--ink);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem;
+  }
+  .p-left { display: flex; align-items: center; gap: 0.75rem; }
+  .p-label {
+    font-family: var(--serif-disp);
+    font-size: 0.8125rem; font-weight: 600;
+    letter-spacing: 0.10em; text-transform: uppercase;
+  }
+  .p-sep { color: var(--border); margin: 0 0.5rem; }
+  .p-subtitle {
+    font-family: var(--serif-body);
+    font-style: italic;
+    font-size: 0.875rem; color: var(--muted);
+  }
+  .p-right { display: flex; align-items: center; gap: 0.625rem; }
+
+  /* Access modal */
+  .modal-ov {
+    position: fixed; inset: 0;
+    background: rgba(27,24,22,0.55);
+    backdrop-filter: blur(5px);
+    z-index: 150;
+    display: flex; align-items: center; justify-content: center;
+    padding: 1.5rem;
+  }
+  .modal-card {
+    background: var(--card);
+    border: 1px solid var(--ink);
+    padding: 2.5rem 2rem 2rem;
+    max-width: 440px; width: 100%; text-align: center;
+    animation: slide-up .25s ease;
+  }
+  @keyframes slide-up { from {opacity:0;transform:translateY(15px);} to {opacity:1;transform:translateY(0);} }
+  @keyframes slide-in { from {opacity:0;transform:translateY(8px);} to {opacity:1;transform:translateY(0);} }
+  @keyframes slide-in-x { from {opacity:0;transform:translateX(-8px);} to {opacity:1;transform:translateX(0);} }
+  .m-title {
+    font-family: var(--serif-disp);
+    font-weight: 600;
+    font-size: 1.375rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .m-sub {
+    font-family: var(--serif-body);
+    font-style: italic;
+    color: var(--ink-soft);
+    margin-bottom: 1.75rem;
+    font-size: 1rem;
+  }
+  .access-stack { display: flex; flex-direction: column; gap: 0.5rem; }
+  .auth-btn {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-family: var(--serif-disp);
+    font-size: 0.6875rem; font-weight: 600;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    cursor: pointer;
+    transition: all .14s;
+    border: 1px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+  }
+  .auth-btn:hover { background: var(--ink); color: var(--bg); }
+  .auth-btn.primary  { background: var(--forest); color: var(--bg); border-color: var(--forest); }
+  .auth-btn.primary:hover { background: var(--forest-h); border-color: var(--forest-h); }
+  .auth-btn.ember    { background: var(--ember);  color: var(--bg); border-color: var(--ember); }
+  .auth-btn.ember:hover { background: #893a13; border-color: #893a13; }
+
+  /* ── Video player + Transcript pane ── */
+  .portal-body {
+    padding-top: var(--HH);
+  }
+  .portal-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 1.25rem;
+    padding: 1.5rem 2rem 3rem;
+    max-width: 1400px; margin: 0 auto;
+  }
+  @media (max-width: 960px) { .portal-grid { grid-template-columns: 1fr; } }
+
+  .vp-wrap { position: relative; background: #1c1815; overflow: visible; }
+  #vpWrap:fullscreen { display: flex; flex-direction: column; width: 100vw; height: 100vh; background: #1c1815; }
+  #vpWrap.vp-fs-fallback {
+    position: fixed !important; inset: 0 !important;
+    width: 100vw !important; height: 100vh !important;
+    z-index: 9999 !important; background: #1c1815 !important;
+    display: flex; flex-direction: column;
+  }
+  body.vp-fs-locked { overflow: hidden; }
+
+  .vp-min-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.5rem 1.125rem;
+    background: var(--ink); color: var(--bg);
+    min-height: 46px;
+    border-bottom: 1px solid var(--ink-soft);
+  }
+  .vp-min-live { display: flex; align-items: center; gap: 0.5rem; font-family: var(--serif-body); font-size: 0.875rem; }
+  .live-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--ember);
+    animation: pulse 1.6s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+
+  .vp-body {
+    position: relative;
+    width: 100%;
+    height: min(440px, 50vw);
+    min-height: 260px;
+    overflow: hidden;
+    background: #1c1815;
+  }
+  #vpWrap:fullscreen .vp-body,
+  #vpWrap.vp-fs-fallback .vp-body { flex: 1; height: auto !important; min-height: unset !important; }
+  .vp-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+
+  /* Stream info & overlays */
+  .vp-stream-info {
+    position: absolute; bottom: 92px; left: 0.875rem;
+    z-index: 20;
+    display: flex; align-items: center; gap: 0.625rem;
+    pointer-events: none;
+  }
+  .vp-live-pill {
+    display: flex; align-items: center; gap: 0.375rem;
+    background: var(--ember); color: #fff;
+    border-radius: 9999px;
+    padding: 0.1875rem 0.625rem;
+    font-family: var(--serif-disp);
+    font-size: 0.5625rem; font-weight: 700;
+    letter-spacing: 0.12em;
+  }
+  .vp-live-pill .live-dot { background: #fff; width: 5px; height: 5px; }
+  .vp-stream-meta { display: flex; flex-direction: column; gap: 0.125rem; color: #fff; }
+  .vp-stream-title { font-family: var(--serif-disp); font-weight: 500; font-size: 0.8125rem; letter-spacing: 0.04em; text-shadow: 0 1px 4px rgba(0,0,0,0.6); }
+  .vp-stream-sub { font-family: var(--serif-body); font-style: italic; font-size: 0.75rem; opacity: 0.85; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+
+  .vp-glyph {
+    position: absolute; top: 0.625rem; right: 0.75rem; z-index: 20;
+    font-family: var(--serif-disp);
+    font-size: 0.625rem;
+    letter-spacing: 0.10em;
+    color: rgba(251,246,236,0.6);
+    pointer-events: none;
+  }
+
+  /* Reaction feed */
+  .vp-rfeed {
+    position: absolute; top: 0.75rem; right: 0.75rem;
+    z-index: 20; display: flex; flex-direction: column-reverse;
+    gap: 0.25rem; pointer-events: none; max-width: 195px;
+  }
+  .rfeed-row {
+    display: flex; align-items: center; gap: 0.375rem;
+    background: rgba(27,24,22,0.78);
+    border: 1px solid rgba(214,197,168,0.3);
+    border-radius: 9999px;
+    padding: 0.1875rem 0.5rem;
+    backdrop-filter: blur(8px);
+    animation: slide-in-x .25s ease;
+    color: var(--cream);
+  }
+  .rfeed-emoji { font-size: 0.9375rem; flex-shrink: 0; }
+  .rfeed-info { display: flex; flex-direction: column; min-width: 0; }
+  .rfeed-user { font-family: var(--serif-body); font-size: 0.6875rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+  .rfeed-time { font-family: var(--serif-disp); font-size: 0.5rem; opacity: 0.7; line-height: 1.2; letter-spacing: 0.06em; }
+
+  /* Raised hands */
+  .vp-hands-ov {
+    position: absolute; top: 0.75rem; left: 0.75rem;
+    z-index: 20;
+    display: flex; flex-direction: column; gap: 0.3125rem;
+    pointer-events: none;
+  }
+  .hands-label {
+    font-family: var(--serif-disp);
+    font-size: 0.5rem; letter-spacing: 0.10em;
+    color: rgba(251,246,236,0.55);
+    margin-bottom: 0.125rem;
+  }
+  .hand-pill {
+    display: inline-flex; align-items: center; gap: 0.3125rem;
+    background: rgba(27,24,22,0.78);
+    border: 1px solid rgba(214,197,168,0.3);
+    border-radius: 9999px;
+    padding: 0.25rem 0.5625rem;
+    font-family: var(--serif-body);
+    font-size: 0.75rem;
+    color: var(--cream);
+    backdrop-filter: blur(6px);
+    animation: slide-in-x .2s ease;
+  }
+  .hand-pill-me { background: var(--ember); border-color: var(--ember); color: #fff; }
+
+  /* Floating emoji */
+  .vp-float-layer { position: absolute; inset: 0; bottom: 52px; z-index: 25; pointer-events: none; overflow: hidden; }
+  .vp-float-emoji {
+    position: absolute; bottom: 4px;
+    font-size: 2rem; line-height: 1;
+    animation: floatUp 2.6s ease-out forwards;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+  }
+  @keyframes floatUp {
+    0%   { opacity:1; transform: translateY(0) scale(1); }
+    20%  { opacity:1; transform: translateY(-45px) scale(1.3); }
+    100% { opacity:0; transform: translateY(-220px) scale(0.65); }
+  }
+
+  /* Pause overlay */
+  .vp-pause-ov {
+    position: absolute; inset: 0; z-index: 38;
+    background: rgba(20,16,12,0.52);
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none;
+  }
+  .vp-pause-circle {
+    width: 68px; height: 68px; border-radius: 50%;
+    background: rgba(27,24,22,0.85);
+    border: 2px solid var(--cream);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--cream);
+  }
+
+  /* Scrub bar */
+  .vp-scrub {
+    position: absolute; bottom: 52px; left: 0; right: 0;
+    z-index: 32; padding: 0.375rem 0.875rem 0.25rem;
+    pointer-events: all;
+    background: linear-gradient(to top, rgba(27,24,22,0.7), transparent);
+  }
+  .vp-scrub-track {
+    position: relative; height: 3px;
+    background: rgba(214,197,168,0.3);
+    border-radius: 9999px; cursor: pointer;
+    transition: height .12s;
+  }
+  .vp-scrub:hover .vp-scrub-track { height: 5px; }
+  .vp-scrub-fill { position: absolute; top: 0; left: 0; height: 100%; background: var(--ember); border-radius: 9999px; }
+  .vp-scrub-buffer { position: absolute; top: 0; left: 0; height: 100%; background: rgba(255,255,255,0.18); border-radius: 9999px; }
+  .vp-scrub-thumb { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 11px; height: 11px; border-radius: 50%; background: var(--cream); opacity: 0; transition: opacity .14s; box-shadow: 0 0 0 3px rgba(164,71,28,0.5); }
+  .vp-scrub:hover .vp-scrub-thumb { opacity: 1; }
+  .vp-scrub-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 0.25rem; font-family: var(--serif-disp); font-size: 0.5625rem; color: rgba(251,246,236,0.65); letter-spacing: 0.06em; }
+  .vp-scrub-livepill {
+    display: inline-flex; align-items: center; gap: 0.25rem;
+    font-family: var(--serif-disp);
+    font-size: 0.5rem; font-weight: 700; letter-spacing: 0.12em;
+    padding: 0.0625rem 0.4375rem;
+    background: rgba(164,71,28,0.20);
+    color: var(--ember);
+    border-radius: 9999px;
+    cursor: pointer;
+  }
+  .vp-scrub-livepill.is-live { background: var(--ember); color: #fff; }
+  .vp-scrub-livepill .live-dot { width: 4px; height: 4px; background: currentColor; }
+
+  /* Controls bar */
+  .vp-controls {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 52px; display: flex; align-items: center;
+    padding: 0 0.875rem; gap: 0.5rem;
+    background: linear-gradient(transparent, rgba(20,16,12,0.95));
+    z-index: 30; backdrop-filter: blur(4px);
+    color: var(--cream);
+  }
+  .vp-ctrl-l { display: flex; align-items: center; gap: 0.1875rem; }
+  .vp-ctrl-c { flex: 1; display: flex; align-items: center; justify-content: center; }
+  .vp-ctrl-r { display: flex; align-items: center; gap: 0.3125rem; }
+  .ctrl-btn {
+    display: inline-flex; align-items: center; gap: 0.25rem;
+    padding: 0.3125rem 0.5rem;
+    border-radius: 4px; border: 1px solid transparent;
+    background: transparent; color: rgba(251,246,236,0.8);
+    font-family: var(--serif-disp);
+    font-size: 0.5625rem; font-weight: 500;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    cursor: pointer;
+    transition: background .12s, border-color .12s, color .12s;
+    position: relative; white-space: nowrap;
+  }
+  .ctrl-btn:hover { background: rgba(91,74,43,0.4); border-color: rgba(214,197,168,0.3); color: var(--cream); }
+  .ctrl-btn.ctrl-on { background: rgba(164,71,28,0.25); border-color: rgba(164,71,28,0.55); color: var(--cream); }
+  .react-btn {
+    background: transparent; border: none; cursor: pointer;
+    font-size: 1.25rem; padding: 0.1875rem 0.25rem;
+    border-radius: 4px; line-height: 1;
+    transition: transform .12s, background .12s;
+  }
+  .react-btn:hover { transform: scale(1.3); background: rgba(91,74,43,0.4); }
+
+  .hand-btn {
+    display: inline-flex; align-items: center; gap: 0.3125rem;
+    padding: 0.3125rem 0.8125rem;
+    border-radius: 9999px; border: 1px solid rgba(214,197,168,0.3);
+    background: rgba(27,24,22,0.65); color: var(--cream);
+    font-family: var(--serif-disp);
+    font-size: 0.625rem; font-weight: 500;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    cursor: pointer; white-space: nowrap;
+    transition: background .14s, border-color .14s, transform .1s;
+    backdrop-filter: blur(4px);
+  }
+  .hand-btn:hover { background: rgba(46,70,50,0.55); border-color: var(--forest); }
+  .hand-btn.hand-active { background: var(--ember); border-color: var(--ember); color: #fff; }
+
+  /* ── Transcript pane (right column) ── */
+  .transcript-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    height: min(700px, calc(100vh - var(--TOP) - 4rem));
+    min-height: 480px;
+    overflow: hidden;
+  }
+  .transcript-head {
+    padding: 0.875rem 1.125rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 0.5rem; flex-shrink: 0;
+  }
+  .transcript-head-l { display: flex; align-items: center; gap: 0.625rem; }
+  .transcript-head h3 {
+    font-family: var(--serif-disp);
+    font-weight: 600;
+    font-size: 0.875rem;
+    letter-spacing: 0.10em; text-transform: uppercase;
+  }
+  .transcript-tabs { display: flex; gap: 0.25rem; }
+  .tt-btn {
+    background: transparent; border: 1px solid var(--border);
+    padding: 0.25rem 0.5rem;
+    font-family: var(--serif-disp);
+    font-size: 0.5625rem;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    color: var(--ink-soft); cursor: pointer;
+    transition: all .14s;
+  }
+  .tt-btn:hover { background: var(--card2); }
+  .tt-btn.is-active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+  .transcript-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem 1.125rem;
+  }
+  .transcript-body::-webkit-scrollbar { width: 5px; }
+  .transcript-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .tr-line {
+    padding: 0.625rem 0.875rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    transition: background .14s, border-color .14s;
+    cursor: pointer;
+    border: 1px solid transparent;
+    position: relative;
+    animation: slide-in .25s ease;
+  }
+  .tr-line:hover { background: var(--card2); border-color: var(--border); }
+  .tr-line.has-note { background: var(--card2); border-color: var(--amber); }
+  .tr-line.is-active { background: rgba(200,144,42,0.16); border-color: var(--amber); }
+  .tr-line-meta {
+    display: flex; align-items: center; gap: 0.4375rem;
+    margin-bottom: 0.25rem;
+  }
+  .tr-line-time {
+    font-family: var(--serif-disp);
+    font-size: 0.5625rem;
+    letter-spacing: 0.10em;
+    color: var(--muted);
+  }
+  .tr-line-speaker {
+    font-family: var(--serif-disp);
+    font-size: 0.5625rem; font-weight: 600;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    color: var(--forest);
+  }
+  .tr-line-note-flag {
+    margin-left: auto;
+    font-family: var(--hand);
+    font-size: 0.875rem;
+    color: var(--ember);
+  }
+  .tr-line-text {
+    font-family: var(--serif-body);
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+  .tr-line-text em { color: var(--forest); font-style: italic; }
+
+  /* Annotation card (cursive note attached to line) */
+  .tr-note {
+    margin-top: 0.5rem;
+    padding: 0.6875rem 1rem;
+    background: linear-gradient(180deg, rgba(248,239,214,0.95), rgba(230,210,163,0.85));
+    border-left: 3px solid var(--gilded);
+    border-right: 1px solid var(--border);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--script);
+    font-size: 1.5rem;
+    line-height: 1.3;
+    color: var(--ink);
+    animation: slide-in .2s ease;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+  .tr-note-meta {
+    font-family: var(--serif-disp);
+    font-size: 0.5rem;
+    letter-spacing: 0.10em;
+    color: var(--muted);
+    margin-top: 0.25rem;
+  }
+  .tr-note-author { color: var(--ember); }
+
+  /* Annotation composer (cursive input) */
+  .annot-form {
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--card2);
+    border: 1px solid var(--amber);
+    border-radius: 4px;
+    animation: slide-in .15s ease;
+  }
+  .annot-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: var(--script);
+    font-size: 1.625rem;
+    color: var(--ink);
+    line-height: 1.3;
+    resize: vertical;
+    min-height: 60px;
+  }
+  .annot-input::placeholder { color: rgba(111,98,83,0.6); font-style: italic; }
+  .annot-actions {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 0.4375rem;
+  }
+  .annot-hint {
+    font-family: var(--serif-disp);
+    font-size: 0.5rem;
+    letter-spacing: 0.10em;
+    color: var(--muted);
+  }
+  .annot-btns { display: flex; gap: 0.3125rem; }
+  .annot-btn {
+    padding: 0.25rem 0.625rem;
+    font-family: var(--serif-disp);
+    font-size: 0.5625rem; font-weight: 600;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    cursor: pointer;
+    transition: all .14s;
+    border: 1px solid var(--ink);
+    background: transparent; color: var(--ink);
+  }
+  .annot-btn:hover { background: var(--ink); color: var(--bg); }
+  .annot-btn.save { background: var(--amber); border-color: var(--amber); color: var(--ink); }
+  .annot-btn.save:hover { background: #a8741c; border-color: #a8741c; }
+
+  /* Chat panel — small inside portal */
+  .chat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    height: min(360px, 38vh);
+    overflow: hidden;
+    margin-top: 1.25rem;
+  }
+  .chat-head {
+    padding: 0.6875rem 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .chat-head h3 {
+    font-family: var(--serif-disp);
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.10em; text-transform: uppercase;
+  }
+  .chat-msgs {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.75rem 1rem;
+    display: flex; flex-direction: column; gap: 0.625rem;
+  }
+  .chat-msgs::-webkit-scrollbar { width: 4px; }
+  .chat-msgs::-webkit-scrollbar-thumb { background: var(--border); }
+  .msg-meta { display: flex; align-items: baseline; gap: 0.4375rem; margin-bottom: 0.1875rem; }
+  .msg-user { font-family: var(--serif-disp); font-size: 0.625rem; font-weight: 600; letter-spacing: 0.06em; color: var(--ember); }
+  .msg-time { font-family: var(--serif-disp); font-size: 0.5625rem; color: var(--muted); }
+  .msg-text { font-family: var(--serif-body); font-size: 0.9375rem; color: var(--ink); line-height: 1.45; }
+  .chat-foot {
+    padding: 0.625rem 1rem; border-top: 1px solid var(--border); flex-shrink: 0;
+  }
+  .chat-in {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 0;
+    padding: 0.4375rem 0.625rem;
+    font-family: var(--serif-body);
+    font-size: 0.875rem;
+    color: var(--ink); outline: none;
+  }
+  .chat-in:focus { border-color: var(--ink); }
+  .chat-row { display: flex; gap: 0.4375rem; }
+  .chat-send {
+    background: var(--ink); color: var(--bg);
+    border: none;
+    padding: 0.375rem 0.875rem;
+    font-family: var(--serif-disp);
+    font-size: 0.625rem; font-weight: 600;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    cursor: pointer;
+  }
+  .chat-send:hover { background: var(--ember); }
+
+  /* ── Knowledge Store page — bound volume ── */
+  .knowledge-wrap { max-width: 1000px; margin: 0 auto; padding: 3rem 2rem; }
+  .knowledge-head {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    margin-bottom: 2rem;
+    background: var(--card);
+    border: 2px solid var(--accent);
+    box-shadow:
+      inset 0 0 0 5px var(--card),
+      inset 0 0 0 6px var(--gilded),
+      0 4px 18px var(--shadow);
+    position: relative;
+  }
+  .knowledge-head .corner { width: 56px; height: 56px; color: var(--gilded); }
+  .knowledge-head h1 {
+    font-family: var(--serif-disp);
+    font-weight: 700;
+    font-size: clamp(1.875rem, 3.5vw, 2.5rem);
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 0.4375rem;
+    color: var(--ink);
+  }
+  .knowledge-head .script {
+    font-family: var(--script);
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+    color: var(--rose);
+    margin-bottom: 0.75rem;
+  }
+  .knowledge-head p {
+    font-family: var(--serif-body);
+    font-style: italic;
+    color: var(--ink-soft);
+    font-size: 1.0625rem;
+    max-width: 540px; margin: 0 auto;
+  }
+  .knowledge-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 1.5rem auto 0;
+    max-width: 640px;
+  }
+  .kstat { text-align: center; }
+  .kstat-num {
+    font-family: var(--serif-disp);
+    font-weight: 600;
+    font-size: 1.875rem;
+    color: var(--ember);
+  }
+  .kstat-lbl {
+    font-family: var(--serif-disp);
+    font-size: 0.625rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .know-entry {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--accent);
+    box-shadow:
+      inset 0 0 0 3px var(--card),
+      inset 0 0 0 4px var(--gilded),
+      0 3px 12px var(--shadow);
+    padding: 1.5rem 1.875rem;
+    margin-bottom: 1.25rem;
+  }
+  .know-entry .corner { width: 36px; height: 36px; color: var(--gilded); }
+  .know-entry-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.625rem;
+    border-bottom: 1px dashed var(--border);
+  }
+  .know-session {
+    font-family: var(--serif-disp);
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--forest);
+    font-weight: 600;
+  }
+  .know-time {
+    font-family: var(--serif-disp);
+    font-size: 0.625rem;
+    color: var(--muted);
+  }
+  .know-quote {
+    font-family: var(--serif-body);
+    font-style: italic;
+    color: var(--ink-soft);
+    border-left: 2px solid var(--forest);
+    padding-left: 0.75rem;
+    margin-bottom: 0.625rem;
+    line-height: 1.45;
+    font-size: 0.9375rem;
+  }
+  .know-quote::before { content: '"'; color: var(--amber); }
+  .know-quote::after { content: '"'; color: var(--amber); }
+  .know-note {
+    font-family: var(--script);
+    font-size: 1.875rem;
+    line-height: 1.3;
+    color: var(--ink);
+    padding: 0.5rem 0;
+    letter-spacing: 0.005em;
+  }
+  .know-actions {
+    display: flex; gap: 0.4375rem;
+    margin-top: 0.625rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed var(--border);
+  }
+  .know-act-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    padding: 0.25rem 0.625rem;
+    font-family: var(--serif-disp);
+    font-size: 0.5625rem;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all .14s;
+  }
+  .know-act-btn:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .know-act-btn.danger:hover { background: var(--burgundy); border-color: var(--burgundy); color: var(--bg); }
+
+  .know-empty {
+    text-align: center; padding: 3rem 1rem;
+    font-family: var(--serif-body);
+    font-style: italic;
+    color: var(--muted);
+    font-size: 1.0625rem;
+  }
+
+  /* Knowledge Store v2 — search, tags, versions */
+  .ks-toolbar {
+    display: flex; gap: 0.75rem; flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+    align-items: center;
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 0.875rem 1rem;
+    box-shadow: inset 0 0 0 3px var(--card), inset 0 0 0 4px var(--gilded);
+  }
+  .ks-search {
+    flex: 1; min-width: 200px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 0.4375rem 0.75rem;
+    font-family: var(--serif-body);
+    font-size: 0.9375rem;
+    color: var(--ink); outline: none;
+    transition: border-color .14s;
+  }
+  .ks-search:focus { border-color: var(--accent); }
+  .ks-search::placeholder { color: var(--muted); font-style: italic; }
+  .ks-add-btn {
+    background: var(--ember); color: var(--cream);
+    border: 1px solid var(--ember);
+    padding: 0.4375rem 0.875rem;
+    font-family: var(--serif-disp);
+    font-size: 0.625rem; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    cursor: pointer;
+    transition: background .14s;
+    flex-shrink: 0;
+  }
+  .ks-add-btn:hover { background: #6b2911; }
+  .ks-tag-row {
+    display: flex; flex-wrap: wrap; gap: 0.3125rem;
+    margin-top: 0.625rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed var(--border);
+  }
+  .ks-tag {
+    font-family: var(--serif-disp);
+    font-size: 0.5625rem; font-weight: 600;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    padding: 0.125rem 0.4375rem;
+    border: 1px solid var(--gilded);
+    background: rgba(163,122,40,0.10);
+    color: var(--accent);
+    cursor: pointer;
+    transition: background .12s;
+  }
+  .ks-tag:hover { background: rgba(163,122,40,0.20); }
+  .ks-tag.is-active { background: var(--accent); color: var(--cream); border-color: var(--accent); }
+
+  /* Free-note composer (modal) */
+  .ks-modal-ov {
+    position: fixed; inset: 0;
+    background: rgba(31,24,18,0.6);
+    backdrop-filter: blur(5px);
+    z-index: 250;
+    display: flex; align-items: center; justify-content: center;
+    padding: 1.5rem;
+  }
+  .ks-modal {
+    background: var(--card);
+    border: 2px solid var(--accent);
+    box-shadow:
+      inset 0 0 0 5px var(--card),
+      inset 0 0 0 6px var(--gilded),
+      0 12px 36px var(--shadow);
+    padding: 2rem 1.875rem;
+    max-width: 560px; width: 100%;
+    position: relative;
+    animation: slide-up .25s ease;
+  }
+  .ks-modal .corner { width: 48px; height: 48px; color: var(--gilded); }
+  .ks-modal h3 {
+    font-family: var(--serif-disp);
+    font-weight: 700;
+    font-size: 1.125rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.375rem;
+    text-align: center;
+  }
+  .ks-modal .sub {
+    font-family: var(--script);
+    font-size: 1.25rem;
+    color: var(--rose);
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  .ks-modal-fld {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 0.5rem 0.75rem;
+    font-family: var(--serif-body);
+    font-size: 1rem;
+    color: var(--ink);
+    outline: none;
+    margin-bottom: 0.625rem;
+  }
+  .ks-modal-fld.script {
+    font-family: var(--script);
+    font-size: 1.5rem;
+    line-height: 1.3;
+    min-height: 110px;
+    resize: vertical;
+  }
+  .ks-modal-fld:focus { border-color: var(--accent); }
+  .ks-modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.5rem; }
+  .ks-modal-btn {
+    padding: 0.4375rem 0.875rem;
+    font-family: var(--serif-disp);
+    font-size: 0.6875rem; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    cursor: pointer;
+    transition: all .14s;
+    border: 1px solid var(--ink);
+    background: transparent; color: var(--ink);
+  }
+  .ks-modal-btn:hover { background: var(--ink); color: var(--cream); }
+  .ks-modal-btn.save { background: var(--ember); color: var(--cream); border-color: var(--ember); }
+  .ks-modal-btn.save:hover { background: #6b2911; border-color: #6b2911; }
+
+  /* Version history flyout */
+  .ks-history {
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--card2);
+    border: 1px dashed var(--border);
+    font-family: var(--serif-body);
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+  .ks-history-row { display: flex; gap: 0.625rem; padding: 0.1875rem 0; }
+  .ks-history-row .when { font-family: var(--serif-disp); font-size: 0.5625rem; letter-spacing: 0.10em; color: var(--gilded); text-transform: uppercase; min-width: 70px; }
+  .ks-history-row .what { font-family: var(--script); font-size: 1.125rem; color: var(--ink-soft); font-style: normal; line-height: 1.3; }
+  .ks-history-toggle {
+    background: transparent; border: none;
+    font-family: var(--serif-disp); font-size: 0.5625rem;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    color: var(--gilded); cursor: pointer;
+    margin-top: 0.4375rem;
+    padding: 0.125rem 0;
+  }
+  .ks-history-toggle:hover { color: var(--ember); }
+
+  /* Knowledge categories on notes */
+  .know-cats {
+    display: flex; flex-wrap: wrap; gap: 0.25rem;
+    margin-top: 0.625rem;
+  }
+  .know-cat {
+    font-family: var(--serif-disp);
+    font-size: 0.5rem; font-weight: 700;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    padding: 0.0625rem 0.4375rem;
+    background: var(--bg2); color: var(--accent);
+    border: 1px solid var(--border);
+  }
+  .know-cat.evolved { background: var(--rose); color: var(--cream); border-color: var(--rose); }
+
+  /* ── Archive ── */
+  .archive-wrap { max-width: 1200px; margin: 0 auto; padding: 3rem 2rem; }
+  .archive-head {
+    text-align: center;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 1.5rem; margin-bottom: 2rem;
+  }
+  .archive-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+  .arch-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: border-color .14s, transform .14s;
+  }
+  .arch-card:hover { border-color: var(--ink); transform: translateY(-2px); }
+  .arch-thumb {
+    width: 100%; aspect-ratio: 16 / 9;
+    background: #1c1815;
+    position: relative;
+    overflow: hidden;
+  }
+  .arch-thumb canvas { width: 100%; height: 100%; display: block; }
+  .arch-meta { padding: 0.875rem 1rem; }
+  .arch-unit {
+    font-family: var(--serif-disp);
+    font-size: 0.5625rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ember);
+    margin-bottom: 0.3125rem;
+  }
+  .arch-title {
+    font-family: var(--serif-body);
+    font-weight: 500;
+    font-size: 1.0625rem;
+    line-height: 1.3;
+    color: var(--ink);
+    margin-bottom: 0.4375rem;
+  }
+  .arch-stats {
+    display: flex; gap: 0.625rem;
+    font-family: var(--serif-disp);
+    font-size: 0.5625rem;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+  .arch-duration {
+    position: absolute; bottom: 0.4375rem; right: 0.4375rem;
+    background: rgba(27,24,22,0.85);
+    padding: 0.125rem 0.4375rem;
+    font-family: var(--serif-disp);
+    font-size: 0.5625rem; font-weight: 600; letter-spacing: 0.06em;
+    color: var(--cream);
+  }
+
+  /* ── Sign In ── */
+  .signin-wrap {
+    min-height: calc(100vh - var(--TOP));
+    display: flex; align-items: center; justify-content: center;
+    padding: 3rem 2rem;
+  }
+  .signin-card {
+    max-width: 440px; width: 100%;
+    background: var(--card);
+    border: 1px solid var(--ink);
+    padding: 2.5rem 2rem 2rem;
+    text-align: center;
+  }
+  .form-fld {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.5rem;
+    background: var(--bg);
+    border: 1px solid var(--ink);
+    font-family: var(--serif-body);
+    font-size: 0.9375rem; color: var(--ink);
+    outline: none;
+  }
+  .form-fld:focus { border-color: var(--ember); }
+  .form-err {
+    font-family: var(--serif-disp);
+    font-size: 0.625rem;
+    color: var(--burgundy);
+    margin-bottom: 0.5rem; text-align: left;
+  }
+  .divider { display: flex; align-items: center; gap: 0.75rem; margin: 0.875rem 0; }
+  .div-line { flex: 1; height: 1px; background: var(--border); }
+  .div-txt { font-family: var(--serif-disp); font-size: 0.5625rem; letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase; }
+  .demo-creds {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    padding: 0.75rem 0.875rem;
+    margin-top: 0.75rem;
+    font-family: var(--serif-body);
+    font-size: 0.8125rem; color: var(--ink-soft);
+    text-align: left; line-height: 1.55;
+  }
+  .demo-creds strong { color: var(--ember); font-weight: 600; }
+  .demo-creds code { font-family: monospace; background: var(--bg); padding: 0.0625rem 0.3125rem; color: var(--ember); }
+
+  /* ── Admin Portal ── */
+  .admin-layout {
+    display: grid; grid-template-columns: 230px 1fr;
+    gap: 1rem; padding: 1.25rem 2rem 3rem;
+    max-width: 1400px; margin: 0 auto;
+  }
+  @media (max-width: 880px) { .admin-layout { grid-template-columns: 1fr; } }
+  .admin-sidebar {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 0.75rem;
+    height: fit-content;
+    position: sticky; top: calc(var(--TOP) + 1rem);
+  }
+  .admin-side-section {
+    font-family: var(--serif-disp);
+    font-size: 0.5rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    padding: 0.625rem 0.75rem 0.4375rem;
+  }
+  .admin-nav-btn {
+    display: flex; align-items: center; gap: 0.5rem;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    background: transparent; border: none;
+    color: var(--ink-soft);
+    font-family: var(--serif-disp);
+    font-size: 0.6875rem; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: left; cursor: pointer;
+    transition: background .12s, color .12s;
+    margin-bottom: 0.125rem;
+  }
+  .admin-nav-btn:hover { background: var(--bg2); color: var(--ink); }
+  .admin-nav-btn.is-active {
+    background: var(--ember); color: var(--cream);
+  }
+  .admin-nav-badge {
+    margin-left: auto;
+    background: var(--ember); color: var(--cream);
+    font-family: var(--serif-disp);
+    font-size: 0.5625rem;
+    padding: 0.0625rem 0.3125rem;
+    border-radius: 9999px;
+    min-width: 18px; text-align: center;
+  }
+  .admin-nav-btn.is-active .admin-nav-badge {
+    background: var(--cream); color: var(--ember);
+  }
+  .admin-main {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 1.75rem;
+    min-height: 640px;
+  }
+  .admin-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    gap: 1rem; flex-wrap: wrap;
+  }
+  .admin-title {
+    font-family: var(--serif-disp);
+    font-weight: 600;
+    font-size: 1.25rem;
+    letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .admin-sub {
+    font-family: var(--serif-body);
+    font-style: italic;
+    font-size: 0.9375rem;
+    color: var(--muted);
+    margin-top: 0.25rem;
+  }
+  .admin-pill {
+    display: inline-flex; align-items: center; gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-family: var(--serif-disp);
+    font-size: 0.5625rem; font-weight: 700;
+    letter-spacing: 0.10em; text-transform: uppercase;
+  }
+  .admin-pill-live { background: var(--ember); color: #fff; }
+  .admin-pill-off  { background: var(--bg2); color: var(--muted); }
+
+  /* View-as toggle */
+  .view-as {
+    display: inline-flex;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    padding: 0.125rem;
+    gap: 0.125rem;
+  }
+  .view-as-btn {
+    padding: 0.3125rem 0.875rem;
+    font-family: var(--serif-disp);
+    font-size: 0.625rem; font-weight: 600;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    background: transparent; border: none;
+    color: var(--muted);
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: background .14s, color .14s;
+  }
+  .view-as-btn:hover { color: var(--ink); }
+  .view-as-btn.is-active { background: var(--ember); color: var(--cream); }
+
+  /* Stats */
+  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; }
+  @media (max-width: 640px) { .stat-row { grid-template-columns: repeat(2, 1fr); } }
+  .stat-tile {
+    background: var(--card2); border: 1px solid var(--border);
+    padding: 0.875rem 1rem;
+  }
+  .stat-lbl {
+    font-family: var(--serif-disp);
+    font-size: 0.5625rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 0.375rem;
+  }
+  .stat-val {
+    font-family: var(--serif-disp);
+    font-weight: 600;
+    font-size: 1.625rem;
+    color: var(--ember);
+  }
+  .stat-delta {
+    font-family: var(--serif-body);
+    font-style: italic;
+    font-size: 0.75rem;
+    color: var(--forest);
+    margin-top: 0.125rem;
+  }
+
+  .admin-grid-2 {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 800px) { .admin-grid-2 { grid-template-columns: 1fr; } }
+
+  .admin-card {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    padding: 1.125rem;
+  }
+  .admin-card-h {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 0.875rem;
+  }
+  .admin-card-t {
+    font-family: var(--serif-disp);
+    font-weight: 600;
+    font-size: 0.8125rem;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .admin-card-sub {
+    font-family: var(--serif-body);
+    font-style: italic;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  /* Audience list (in admin) */
+  .aud-list {
+    background: var(--card); border: 1px solid var(--border);
+    max-height: 380px; overflow-y: auto;
+  }
+  .aud-row {
+    display: flex; align-items: center; gap: 0.625rem;
+    padding: 0.625rem 0.875rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .aud-row:last-child { border-bottom: none; }
+  .aud-avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif-disp);
+    font-size: 0.6875rem; font-weight: 600;
+    color: var(--ink);
+    flex-shrink: 0;
+  }
+  .aud-info { flex: 1; min-width: 0; }
+  .aud-name { font-family: var(--serif-body); font-weight: 500; font-size: 0.9375rem; color: var(--ink); }
+  .aud-meta { font-family: var(--serif-disp); font-size: 0.5625rem; letter-spacing: 0.08em; color: var(--muted); margin-top: 0.125rem; display: flex; flex-wrap: wrap; gap: 0.4375rem; }
+  .aud-tier-pill {
+    font-family: var(--serif-disp);
+    font-size: 0.5rem; font-weight: 600;
+    padding: 0.0625rem 0.4375rem;
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .aud-tier-pill.student    { background: var(--bg2); color: var(--ink); }
+  .aud-tier-pill.certified  { background: var(--amber); color: var(--ink); }
+  .aud-tier-pill.instructor { background: var(--forest); color: var(--cream); }
+
+  /* Annotations admin view */
+  .ann-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.875rem;
+  }
+  .ann-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 0.875rem 1rem;
+  }
+  .ann-card-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 0.4375rem;
+    padding-bottom: 0.375rem;
+    border-bottom: 1px dashed var(--border);
+  }
+  .ann-card-by { font-family: var(--serif-disp); font-size: 0.625rem; font-weight: 600; letter-spacing: 0.08em; color: var(--ember); }
+  .ann-card-tier { font-family: var(--serif-disp); font-size: 0.5rem; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; }
+  .ann-card-quote {
+    font-family: var(--serif-body);
+    font-style: italic;
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+    border-left: 2px solid var(--forest);
+    padding-left: 0.625rem;
+    margin-bottom: 0.4375rem;
+    line-height: 1.4;
+  }
+  .ann-card-note {
+    font-family: var(--script);
+    font-size: 1.5rem;
+    color: var(--ink);
+    line-height: 1.3;
+    letter-spacing: 0.005em;
+  }
+  .ann-card-time {
+    font-family: var(--serif-disp);
+    font-size: 0.5rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-top: 0.375rem;
+  }
+
+  /* Stream Control preview frame */
+  .member-preview-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+  }
+  .member-preview-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.625rem 1rem;
+    background: var(--card2);
+    border-bottom: 1px solid var(--border);
+  }
+  .member-preview-pin {
+    font-family: var(--serif-disp);
+    font-size: 0.5625rem; font-weight: 700;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    padding: 0.125rem 0.4375rem;
+    background: var(--ember); color: var(--cream);
+  }
+  .live-prev-frame {
+    position: relative;
+    width: 100%; aspect-ratio: 16 / 9;
+    background: #1c1815; overflow: hidden;
+  }
+  .live-prev-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .live-prev-info {
+    position: absolute; top: 0.5rem; left: 0.5rem;
+    display: flex; align-items: center; gap: 0.3125rem;
+    padding: 0.1875rem 0.5rem;
+    background: rgba(27,24,22,0.85);
+    border-radius: 9999px;
+    color: var(--cream);
+    font-family: var(--serif-disp);
+    font-size: 0.5625rem; letter-spacing: 0.10em;
+    backdrop-filter: blur(6px);
+  }
+  .live-prev-status {
+    position: absolute; top: 0.5rem; right: 0.5rem;
+    padding: 0.1875rem 0.5rem;
+    background: var(--ember); color: #fff;
+    border-radius: 9999px;
+    font-family: var(--serif-disp);
+    font-size: 0.5625rem; font-weight: 700;
+    letter-spacing: 0.12em;
+  }
+  .live-prev-status.is-off { background: var(--bg2); color: var(--muted); }
+  .live-prev-meta {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.4375rem;
+    padding: 0.625rem;
+    background: var(--bg);
+  }
+  .lpm-cell {
+    padding: 0.4375rem 0.5rem;
+    background: var(--card2);
+  }
+  .lpm-lbl {
+    font-family: var(--serif-disp);
+    font-size: 0.5rem;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.125rem;
+  }
+  .lpm-val {
+    font-family: var(--serif-body);
+    font-weight: 500;
+    font-size: 0.8125rem;
+    color: var(--ink);
+  }
+
+  /* ── Demo Controls FAB ── */
+  .demo-fab-wrap { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 400; }
+  .demo-fab {
+    width: 50px; height: 50px;
+    background: var(--ink);
+    color: var(--amber);
+    border: 2px solid var(--amber);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 22px rgba(27,24,22,0.4);
+    transition: background .14s, transform .14s;
+  }
+  .demo-fab:hover { background: var(--forest); transform: scale(1.05); }
+  .demo-panel {
+    position: absolute; bottom: calc(100% + 0.75rem); right: 0;
+    width: 320px;
+    background: var(--card);
+    border: 1px solid var(--ink);
+    padding: 1.125rem;
+    box-shadow: 0 12px 40px rgba(27,24,22,0.3);
+  }
+  .dp-title {
+    font-family: var(--serif-disp);
+    font-size: 0.6875rem; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ember);
+    margin-bottom: 0.875rem;
+    padding-bottom: 0.4375rem;
+    border-bottom: 1px solid var(--ink);
+  }
+  .dp-section { margin-bottom: 0.875rem; }
+  .dp-section:last-of-type { margin-bottom: 0; }
+  .dp-lbl {
+    font-family: var(--serif-disp);
+    font-size: 0.5625rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.375rem;
+    display: block;
+  }
+  .dp-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.4375rem;
+  }
+  .dp-sel {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 0.3125rem 0.5rem;
+    font-family: var(--serif-body);
+    font-size: 0.8125rem;
+    color: var(--ink);
+    cursor: pointer; outline: none;
+  }
+  .dp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.3125rem;
+  }
+  .dp-btn {
+    padding: 0.4375rem 0.5rem;
+    background: transparent;
+    border: 1px solid var(--border);
+    font-family: var(--serif-disp);
+    font-size: 0.5625rem; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink);
+    cursor: pointer;
+    transition: all .14s;
+  }
+  .dp-btn:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .dp-btn.ember { background: var(--ember); color: var(--cream); border-color: var(--ember); }
+  .dp-btn.ember:hover { background: #893a13; border-color: #893a13; }
+  .dp-btn.wide { grid-column: 1 / -1; }
+
+  .dp-meta {
+    margin-top: 0.875rem;
+    padding-top: 0.625rem;
+    border-top: 1px solid var(--border);
+    font-family: var(--serif-body);
+    font-style: italic;
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .dp-meta code {
+    font-family: monospace;
+    color: var(--ember);
+    font-style: normal;
+    font-size: 0.6875rem;
+  }
+
+  /* Scenario narration */
+  .scenario-ov {
+    position: fixed; bottom: 6.5rem; left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink); color: var(--cream);
+    padding: 0.875rem 1.5rem;
+    z-index: 350;
+    font-family: var(--serif-body);
+    font-style: italic;
+    font-size: 0.9375rem;
+    max-width: 90vw;
+    border-left: 3px solid var(--amber);
+    animation: slide-up .25s ease;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed; top: calc(var(--TOP) + 1rem); right: 1.5rem;
+    background: var(--ink); color: var(--cream);
+    padding: 0.625rem 1rem;
+    font-family: var(--serif-disp);
+    font-size: 0.625rem; letter-spacing: 0.10em; text-transform: uppercase;
+    border-left: 3px solid var(--amber);
+    z-index: 380;
+    animation: slide-in .25s ease;
+  }
+
+  [x-cloak] { display: none !important; }
+  ::-webkit-scrollbar { width: 7px; height: 7px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  /* SVG glyph helpers */
+  .glyph-leaf { stroke: currentColor; fill: none; stroke-width: 1.5; }
+</style>
+</head>
+<body x-data="ichabods()" x-init="init()">
+
+<!-- ══ Demo banner ══ -->
+<div class="demo-banner z1">
+  <span class="star">⁂</span>
+  <span class="star">❦</span>
+  Ichabod's Apothecary  ·  Interactive MVP Simulation
+  <span class="star">❦</span>
+  <span class="star">⁂</span>
+  Demo controls bottom-right
+</div>
+
+<!-- ══ HEADER ══ -->
+<header class="site-header z1" x-show="page !== 'portal' && page !== 'admin'" x-cloak>
+  <div class="apoth-mark" @click="page='home'">
+    <!-- Ornate Art Nouveau apothecary mark: mortar & pestle in laurel wreath with rising vapor -->
+    <svg class="apoth-glyph" width="56" height="56" viewBox="0 0 72 72" fill="none">
+      <!-- Outer laurel wreath -->
+      <path d="M36 8 C20 12 12 26 14 42 C16 52 24 60 36 64 C48 60 56 52 58 42 C60 26 52 12 36 8 Z"
+            stroke="currentColor" stroke-width="0.7" fill="none" opacity="0.7"/>
+      <!-- laurel leaves left -->
+      <g stroke="currentColor" stroke-width="1" fill="none" opacity="0.85">
+        <path d="M14 24 Q10 26 12 30"/>
+        <path d="M12 32 Q8 34 10 38"/>
+        <path d="M12 40 Q8 42 11 46"/>
+        <path d="M15 48 Q12 50 15 54"/>
+        <!-- right -->
+        <path d="M58 24 Q62 26 60 30"/>
+        <path d="M60 32 Q64 34 62 38"/>
+        <path d="M60 40 Q64 42 61 46"/>
+        <path d="M57 48 Q60 50 57 54"/>
+      </g>
+      <!-- Mortar -->
+      <path d="M22 42 L50 42 L46 56 L26 56 Z" stroke="currentColor" stroke-width="1.6" fill="none"/>
+      <path d="M28 42 L28 36 C28 32 31 30 36 30 C41 30 44 32 44 36 L44 42" stroke="currentColor" stroke-width="1.3" fill="none"/>
+      <!-- Pestle leaning -->
+      <path d="M36 30 L36 18" stroke="currentColor" stroke-width="1.5"/>
+      <ellipse cx="36" cy="17" rx="2.5" ry="2" stroke="currentColor" stroke-width="1.3" fill="var(--card)"/>
+      <!-- Rising vapor -->
+      <path d="M30 28 C28 24 30 20 28 16 M36 28 C38 24 36 20 38 14 M42 28 C40 24 42 20 40 18"
+            stroke="currentColor" stroke-width="1" fill="none" opacity="0.7"/>
+      <!-- Bottom flourish -->
+      <path d="M30 56 Q36 60 42 56" stroke="currentColor" stroke-width="0.8" fill="none"/>
+      <circle cx="36" cy="59" r="1.2" fill="currentColor"/>
+    </svg>
+    <div style="display:flex;flex-direction:column;gap:0.125rem;">
+      <span class="apoth-name">Ichabod's Apothecary</span>
+      <span class="apoth-tag">Finest Remedies, Elixirs, &amp; Tinctures</span>
+    </div>
+  </div>
+  <nav class="nav">
+    <button class="nav-link" :class="{'is-active': page==='shop'}"      @click="page='shop'">Shop</button>
+    <button class="nav-link" :class="{'is-active': page==='course'}"    @click="page='course'">Course</button>
+    <button class="nav-link gated" :class="{'is-active': page==='knowledge'}" @click="navTo('knowledge')">Knowledge</button>
+    <button class="nav-link" :class="{'is-active': page==='archive'}"   @click="page='archive'">Archive</button>
+    <button class="nav-link gated" :class="{'is-active': page==='admin'}" @click="(rank(accessTier)>=rank('instructor')) ? page='admin' : page='admin-login'">Admin</button>
+    <template x-if="accessTier === 'none'">
+      <button class="nav-pill" @click="page='signin'">Sign In</button>
+    </template>
+    <template x-if="accessTier !== 'none'">
+      <button class="nav-pill tier-badge" @click="page='signin'" :title="currentUser">
+        <span x-text="roles.find(r=>r.id===accessTier)?.label"></span>
+      </button>
+    </template>
+  </nav>
+</header>
+
+<!-- ══ TOAST + SCENARIO NARRATION ══ -->
+<div class="toast" x-show="toast" x-cloak x-text="toast" @click="toast=''"></div>
+<div class="scenario-ov" x-show="scenarioNarration" x-cloak x-text="scenarioNarration"></div>
+
+<!-- ══ PAGE: HOME ══ -->
+<div x-show="page === 'home'" class="page z1">
+  <div class="home-wrap">
+
+    <!-- HERO LABEL (Art Nouveau apothecary signboard) -->
+    <section class="hero-label">
+      <!-- 4 corner ornaments -->
+      <div class="corner tl"><svg viewBox="0 0 64 64"><g stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"><path d="M0 0 L20 0"/><path d="M0 0 L0 20"/><path d="M2 2 L18 2 Q22 2 22 6 L22 18"/><path d="M4 6 Q12 8 14 14 Q16 22 22 22"/><path d="M28 4 Q24 8 26 14 Q28 20 22 22"/><circle cx="26" cy="10" r="1.5" fill="currentColor"/><path d="M30 12 Q34 10 36 14 Q38 18 34 20"/><path d="M12 26 Q18 28 22 32 Q26 36 32 34"/><circle cx="32" cy="34" r="1.5" fill="currentColor"/><path d="M6 30 Q10 36 16 38"/></g></svg></div>
+      <div class="corner tr"><svg viewBox="0 0 64 64"><g stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"><path d="M0 0 L20 0"/><path d="M0 0 L0 20"/><path d="M2 2 L18 2 Q22 2 22 6 L22 18"/><path d="M4 6 Q12 8 14 14 Q16 22 22 22"/><path d="M28 4 Q24 8 26 14 Q28 20 22 22"/><circle cx="26" cy="10" r="1.5" fill="currentColor"/><path d="M30 12 Q34 10 36 14 Q38 18 34 20"/><path d="M12 26 Q18 28 22 32 Q26 36 32 34"/><circle cx="32" cy="34" r="1.5" fill="currentColor"/><path d="M6 30 Q10 36 16 38"/></g></svg></div>
+      <div class="corner bl"><svg viewBox="0 0 64 64"><g stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"><path d="M0 0 L20 0"/><path d="M0 0 L0 20"/><path d="M2 2 L18 2 Q22 2 22 6 L22 18"/><path d="M4 6 Q12 8 14 14 Q16 22 22 22"/><path d="M28 4 Q24 8 26 14 Q28 20 22 22"/><circle cx="26" cy="10" r="1.5" fill="currentColor"/><path d="M30 12 Q34 10 36 14 Q38 18 34 20"/><path d="M12 26 Q18 28 22 32 Q26 36 32 34"/><circle cx="32" cy="34" r="1.5" fill="currentColor"/><path d="M6 30 Q10 36 16 38"/></g></svg></div>
+      <div class="corner br"><svg viewBox="0 0 64 64"><g stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"><path d="M0 0 L20 0"/><path d="M0 0 L0 20"/><path d="M2 2 L18 2 Q22 2 22 6 L22 18"/><path d="M4 6 Q12 8 14 14 Q16 22 22 22"/><path d="M28 4 Q24 8 26 14 Q28 20 22 22"/><circle cx="26" cy="10" r="1.5" fill="currentColor"/><path d="M30 12 Q34 10 36 14 Q38 18 34 20"/><path d="M12 26 Q18 28 22 32 Q26 36 32 34"/><circle cx="32" cy="34" r="1.5" fill="currentColor"/><path d="M6 30 Q10 36 16 38"/></g></svg></div>
+
+      <div class="hero-est">⁂  Anno Domini MMXXVI  ⁂  Established Slowly  ⁂</div>
+
+      <h1 class="hero-title">Ichabod's <span class="amp">&amp;</span> Apothecary</h1>
+      <div class="hero-subline">Finest Remedies, Elixirs &amp; Tinctures</div>
+
+      <div class="hero-rule">
+        <span class="rule-mark">✦  ✦  ✦</span>
+      </div>
+
+      <p class="hero-tagline">Plant medicine and the patient art of remembering. A certified herbalist program, a small apothecary shelf, a slow community of students and growers.</p>
+
+      <div class="hero-rule">
+        <span class="rule-mark">crafted by moonlight  ·  kept by lamplight</span>
+      </div>
+
+      <div class="hero-address">2914 Court St., Pekin, IL  ·  Open by lamplight</div>
+    </section>
+
+    <!-- Three apothecary jars row — botanical breather -->
+    <div class="jar-row">
+      <div style="text-align:center;">
+        <svg width="56" height="84" viewBox="0 0 60 90" fill="none" stroke="currentColor" stroke-width="1.3">
+          <rect x="14" y="6" width="32" height="6" rx="1" fill="var(--gilded)" opacity="0.85"/>
+          <path d="M10 18 L50 18 L48 78 Q48 84 42 84 L18 84 Q12 84 12 78 Z" stroke-linejoin="round"/>
+          <rect x="16" y="36" width="28" height="22" fill="var(--cream)"/>
+          <text x="30" y="49" font-family="Cinzel" font-size="6" fill="var(--ink)" text-anchor="middle" stroke="none" font-weight="700">YARROW</text>
+          <text x="30" y="56" font-family="Cormorant Garamond" font-size="5" font-style="italic" fill="var(--rose)" text-anchor="middle" stroke="none">Achillea</text>
+        </svg>
+        <div class="jar-cap">For Blood</div>
+      </div>
+      <div style="text-align:center;">
+        <svg width="60" height="84" viewBox="0 0 64 90" fill="none" stroke="currentColor" stroke-width="1.3">
+          <ellipse cx="32" cy="10" rx="14" ry="3" fill="var(--gilded)" opacity="0.85"/>
+          <path d="M16 13 L48 13 L46 24 Q46 28 32 30 Q18 28 18 24 Z" stroke-linejoin="round"/>
+          <path d="M14 30 L50 30 L48 80 Q48 86 42 86 L22 86 Q16 86 16 80 Z" stroke-linejoin="round"/>
+          <rect x="20" y="44" width="24" height="22" fill="var(--cream)"/>
+          <text x="32" y="56" font-family="Cinzel" font-size="6" fill="var(--ink)" text-anchor="middle" stroke="none" font-weight="700">MUGWORT</text>
+          <text x="32" y="63" font-family="Cormorant Garamond" font-size="5" font-style="italic" fill="var(--rose)" text-anchor="middle" stroke="none">Artemisia</text>
+        </svg>
+        <div class="jar-cap">For Dreaming</div>
+      </div>
+      <div style="text-align:center;">
+        <svg width="52" height="84" viewBox="0 0 56 90" fill="none" stroke="currentColor" stroke-width="1.3">
+          <path d="M22 6 L34 6 L36 14 L20 14 Z" fill="var(--gilded)" opacity="0.85" stroke-linejoin="round"/>
+          <path d="M18 14 L38 14 L42 78 Q42 84 36 84 L20 84 Q14 84 14 78 Z" stroke-linejoin="round"/>
+          <rect x="18" y="38" width="20" height="22" fill="var(--cream)"/>
+          <text x="28" y="50" font-family="Cinzel" font-size="6" fill="var(--ink)" text-anchor="middle" stroke="none" font-weight="700">VALERIAN</text>
+          <text x="28" y="57" font-family="Cormorant Garamond" font-size="5" font-style="italic" fill="var(--rose)" text-anchor="middle" stroke="none">Valeriana</text>
+        </svg>
+        <div class="jar-cap">For Sleep</div>
+      </div>
+    </div>
+
+    <!-- Feature grid -->
+    <section class="feat-grid">
+      <div class="feat-card" @click="page='course'">
+        <div class="corner tl"><svg viewBox="0 0 48 48"><g stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"><path d="M2 2 L14 2 Q16 2 16 4"/><path d="M2 2 L2 14 Q2 16 4 16"/><path d="M4 8 Q8 10 10 14"/><circle cx="10" cy="14" r="1" fill="currentColor"/><path d="M14 4 Q12 8 14 12"/></g></svg></div>
+        <div class="corner tr"><svg viewBox="0 0 48 48"><g stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"><path d="M2 2 L14 2 Q16 2 16 4"/><path d="M2 2 L2 14 Q2 16 4 16"/><path d="M4 8 Q8 10 10 14"/><circle cx="10" cy="14" r="1" fill="currentColor"/><path d="M14 4 Q12 8 14 12"/></g></svg></div>
+        <div class="feat-badge active">Now Enrolling</div>
+        <h3 class="feat-title">Certified Herbalist</h3>
+        <span class="feat-title-script">a slow program</span>
+        <p class="feat-desc">A live cohort program. Weekly classes with on-screen transcription, annotation, and a knowledge store that builds across the term.</p>
+        <span class="feat-cta">Read the syllabus</span>
+      </div>
+      <div class="feat-card" @click="page='shop'">
+        <div class="corner tl"><svg viewBox="0 0 48 48"><g stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"><path d="M2 2 L14 2 Q16 2 16 4"/><path d="M2 2 L2 14 Q2 16 4 16"/><path d="M4 8 Q8 10 10 14"/><circle cx="10" cy="14" r="1" fill="currentColor"/><path d="M14 4 Q12 8 14 12"/></g></svg></div>
+        <div class="corner tr"><svg viewBox="0 0 48 48"><g stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"><path d="M2 2 L14 2 Q16 2 16 4"/><path d="M2 2 L2 14 Q2 16 4 16"/><path d="M4 8 Q8 10 10 14"/><circle cx="10" cy="14" r="1" fill="currentColor"/><path d="M14 4 Q12 8 14 12"/></g></svg></div>
+        <div class="feat-badge active">Shop Open</div>
+        <h3 class="feat-title">The Shelf</h3>
+        <span class="feat-title-script">remedies &amp; sundries</span>
+        <p class="feat-desc">Herbal blends, facial steams, and pain-relieving topicals. Vended in collaboration with Red Fawn — sixty/forty between our shelves.</p>
+        <span class="feat-cta">Browse the shelf</span>
+      </div>
+      <div class="feat-card" @click="navTo('knowledge')">
+        <div class="corner tl"><svg viewBox="0 0 48 48"><g stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"><path d="M2 2 L14 2 Q16 2 16 4"/><path d="M2 2 L2 14 Q2 16 4 16"/><path d="M4 8 Q8 10 10 14"/><circle cx="10" cy="14" r="1" fill="currentColor"/><path d="M14 4 Q12 8 14 12"/></g></svg></div>
+        <div class="corner tr"><svg viewBox="0 0 48 48"><g stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"><path d="M2 2 L14 2 Q16 2 16 4"/><path d="M2 2 L2 14 Q2 16 4 16"/><path d="M4 8 Q8 10 10 14"/><circle cx="10" cy="14" r="1" fill="currentColor"/><path d="M14 4 Q12 8 14 12"/></g></svg></div>
+        <div class="feat-badge active">For Students</div>
+        <h3 class="feat-title">Knowledge Store</h3>
+        <span class="feat-title-script">your bound volume</span>
+        <p class="feat-desc">Every annotation you mark on a class transcript saves to your own bound volume. Reference it, edit it, take it with you when you've finished the program.</p>
+        <span class="feat-cta">Open your notebook</span>
+      </div>
+      <div class="feat-card faded">
+        <div class="feat-badge soon">Forthcoming</div>
+        <h3 class="feat-title">Materia Medica</h3>
+        <span class="feat-title-script">a shared field guide</span>
+        <p class="feat-desc">A community-written field guide compiled by certified students. Coming once the first cohort graduates.</p>
+      </div>
+    </section>
+
+    <!-- Quote rail -->
+    <section class="quote-rail">
+      <svg class="ornament-top" width="280" height="34" viewBox="0 0 280 34" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
+        <path d="M0 17 L100 17"/>
+        <path d="M180 17 L280 17"/>
+        <!-- center medallion -->
+        <circle cx="140" cy="17" r="6" fill="none"/>
+        <circle cx="140" cy="17" r="2" fill="currentColor"/>
+        <path d="M132 13 Q128 10 124 12 M148 13 Q152 10 156 12"/>
+        <path d="M132 21 Q128 24 124 22 M148 21 Q152 24 156 22"/>
+        <!-- left fern -->
+        <path d="M95 17 Q90 12 85 17 Q80 22 75 17 Q70 12 65 17"/>
+        <!-- right fern -->
+        <path d="M185 17 Q190 12 195 17 Q200 22 205 17 Q210 12 215 17"/>
+      </svg>
+      <blockquote>Plants do not hurry. Neither, in time, will you.</blockquote>
+      <cite>— Welcome letter, Lesson the First</cite>
+      <svg class="ornament-bot" width="280" height="34" viewBox="0 0 280 34" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
+        <path d="M0 17 L100 17"/>
+        <path d="M180 17 L280 17"/>
+        <circle cx="140" cy="17" r="6" fill="none"/>
+        <circle cx="140" cy="17" r="2" fill="currentColor"/>
+        <path d="M132 13 Q128 10 124 12 M148 13 Q152 10 156 12"/>
+        <path d="M132 21 Q128 24 124 22 M148 21 Q152 24 156 22"/>
+        <path d="M95 17 Q90 12 85 17 Q80 22 75 17 Q70 12 65 17"/>
+        <path d="M185 17 Q190 12 195 17 Q200 22 205 17 Q210 12 215 17"/>
+      </svg>
+    </section>
+
+  </div>
+</div>
+
+<!-- ══ PAGE: SHOP ══ -->
+<div x-show="page === 'shop'" class="page z1">
+  <div class="shop-wrap">
+    <div class="shop-head">
+      <div class="corner tl"><svg viewBox="0 0 56 56"><g stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"><path d="M2 2 L18 2 Q22 2 22 6"/><path d="M2 2 L2 18 Q2 22 6 22"/><path d="M4 8 Q10 12 14 18"/><circle cx="14" cy="18" r="1.5" fill="currentColor"/><path d="M18 4 Q14 10 16 16 Q18 22 24 24"/><path d="M28 10 Q26 16 22 20"/></g></svg></div>
+      <div class="corner tr"><svg viewBox="0 0 56 56"><g stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"><path d="M2 2 L18 2 Q22 2 22 6"/><path d="M2 2 L2 18 Q2 22 6 22"/><path d="M4 8 Q10 12 14 18"/><circle cx="14" cy="18" r="1.5" fill="currentColor"/><path d="M18 4 Q14 10 16 16 Q18 22 24 24"/><path d="M28 10 Q26 16 22 20"/></g></svg></div>
+      <div class="corner bl"><svg viewBox="0 0 56 56"><g stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"><path d="M2 2 L18 2 Q22 2 22 6"/><path d="M2 2 L2 18 Q2 22 6 22"/><path d="M4 8 Q10 12 14 18"/><circle cx="14" cy="18" r="1.5" fill="currentColor"/><path d="M18 4 Q14 10 16 16 Q18 22 24 24"/><path d="M28 10 Q26 16 22 20"/></g></svg></div>
+      <div class="corner br"><svg viewBox="0 0 56 56"><g stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"><path d="M2 2 L18 2 Q22 2 22 6"/><path d="M2 2 L2 18 Q2 22 6 22"/><path d="M4 8 Q10 12 14 18"/><circle cx="14" cy="18" r="1.5" fill="currentColor"/><path d="M18 4 Q14 10 16 16 Q18 22 24 24"/><path d="M28 10 Q26 16 22 20"/></g></svg></div>
+      <div class="est-line">⁂  The Apothecary Shelf  ⁂  Goods &amp; Sundries  ⁂</div>
+      <h1>Remedies, Elixirs, Soaps &amp; Curiosities</h1>
+      <div class="script">crafted by moonlight &amp; ancient wisdom</div>
+      <p>Herbal blends, facial steams, and pain-relieving topicals — vended in collaboration with Red Fawn. Sixty percent from their growers, forty percent from Ichabod's own kitchen.</p>
+      <div class="vendor-notice">
+        <span class="pip"></span>
+        <span x-text="shopRedfawnCount + ' from Red Fawn  ·  ' + shopIchabodsCount + ' from Ichabod\\'s'"></span>
+      </div>
+    </div>
+
+    <div class="shop-filters">
+      <button class="filter-btn" :class="{'is-active': shopFilter==='all'}"       @click="shopFilter='all'">All</button>
+      <button class="filter-btn" :class="{'is-active': shopFilter==='blend'}"     @click="shopFilter='blend'">Herbal Blends</button>
+      <button class="filter-btn" :class="{'is-active': shopFilter==='tea'}"       @click="shopFilter='tea'">Facial Teas &amp; Soaks</button>
+      <button class="filter-btn" :class="{'is-active': shopFilter==='topical'}"   @click="shopFilter='topical'">Pain-Relieving Topicals</button>
+      <button class="filter-btn" :class="{'is-active': shopFilter==='redfawn'}"   @click="shopFilter='redfawn'">Red Fawn</button>
+      <button class="filter-btn" :class="{'is-active': shopFilter==='ichabods'}"  @click="shopFilter='ichabods'">Ichabod's</button>
+    </div>
+
+    <div class="shop-grid">
+      <template x-for="p in filteredShop" :key="p.id">
+        <div class="prod" @click="addToCart(p)">
+          <div class="corner tl"><svg viewBox="0 0 28 28"><g stroke="currentColor" stroke-width="0.9" fill="none" stroke-linecap="round"><path d="M2 2 L10 2"/><path d="M2 2 L2 10"/><path d="M4 6 Q8 8 8 12"/><circle cx="8" cy="12" r="0.8" fill="currentColor"/></g></svg></div>
+          <div class="corner tr"><svg viewBox="0 0 28 28"><g stroke="currentColor" stroke-width="0.9" fill="none" stroke-linecap="round"><path d="M2 2 L10 2"/><path d="M2 2 L2 10"/><path d="M4 6 Q8 8 8 12"/><circle cx="8" cy="12" r="0.8" fill="currentColor"/></g></svg></div>
+          <div class="corner bl"><svg viewBox="0 0 28 28"><g stroke="currentColor" stroke-width="0.9" fill="none" stroke-linecap="round"><path d="M2 2 L10 2"/><path d="M2 2 L2 10"/><path d="M4 6 Q8 8 8 12"/><circle cx="8" cy="12" r="0.8" fill="currentColor"/></g></svg></div>
+          <div class="corner br"><svg viewBox="0 0 28 28"><g stroke="currentColor" stroke-width="0.9" fill="none" stroke-linecap="round"><path d="M2 2 L10 2"/><path d="M2 2 L2 10"/><path d="M4 6 Q8 8 8 12"/><circle cx="8" cy="12" r="0.8" fill="currentColor"/></g></svg></div>
+
+          <div class="prod-thumb">
+            <canvas :id="'pthumb-' + p.id"></canvas>
+            <div class="prod-vendor" :class="p.vendor" x-text="p.vendor === 'redfawn' ? 'Red Fawn' : \"Ichabod's\""></div>
+            <div class="prod-cat" x-text="p.catLabel"></div>
+          </div>
+          <div class="prod-name" x-text="p.name"></div>
+          <div class="prod-rule"><span class="prod-rule-mark">❦</span></div>
+          <div class="prod-meta">
+            <span x-text="p.cat.toUpperCase()"></span>
+            <span class="prod-price" x-text="'$' + p.price.toFixed(2)"></span>
+          </div>
+          <button class="prod-add" @click.stop="addToCart(p)">⁂ Add to Satchel ⁂</button>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <!-- Cart pill -->
+  <button class="cart-pill" x-show="cart.length > 0" x-cloak @click="toast='Satchel: ' + cart.length + ' items, $' + cartTotal.toFixed(2); setTimeout(() => toast='', 2400)">
+    <span class="cart-icon">⚱</span>
+    Satchel
+    <span class="cart-count" x-text="cart.length"></span>
+  </button>
+</div>
+
+<!-- ══ PAGE: COURSE (access picker) ══ -->
+<div x-show="page === 'course'" class="page z1">
+  <div class="signin-wrap">
+    <div class="signin-card">
+      <svg width="42" height="42" viewBox="0 0 64 64" fill="none" style="display:block;margin:0 auto 1rem;color:var(--ink);">
+        <path d="M14 36 L50 36 L46 56 L18 56 Z" stroke="currentColor" stroke-width="1.6" fill="none"/>
+        <path d="M32 22 L32 10" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M32 18 C28 14 28 10 30 8 M32 18 C36 14 36 10 34 8" stroke="currentColor" stroke-width="1.2" fill="none"/>
+      </svg>
+      <h2 style="font-family:var(--serif-disp);font-weight:600;font-size:1.375rem;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:0.5rem;">Certified Medicinal Herbalist</h2>
+      <p style="font-family:var(--serif-body);font-style:italic;color:var(--ink-soft);margin-bottom:1.5rem;font-size:1rem;">A twelve-month cohort. Live weekly classes, transcribed and annotated.</p>
+      <div class="access-stack">
+        <button class="auth-btn primary" @click="enterPortal('student')">Enroll &amp; Enter</button>
+        <button class="auth-btn ember" @click="enterPortal('certified')">I'm Already Certified</button>
+        <button class="auth-btn" @click="enterPortal('free')">Audit (Free, Read-Only)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAGE: PORTAL (live class with transcript + chat) ══ -->
+<div x-show="page === 'portal'" style="padding-top:var(--BH); min-height:100vh;" class="z1">
+  <!-- Portal header -->
+  <div class="portal-header">
+    <div class="p-left">
+      <svg width="28" height="28" viewBox="0 0 64 64" fill="none" style="color:var(--ink);">
+        <path d="M14 36 L50 36 L46 56 L18 56 Z" stroke="currentColor" stroke-width="1.6" fill="none"/>
+        <path d="M32 22 L32 10" stroke="currentColor" stroke-width="1.4"/>
+      </svg>
+      <span class="p-label">Ichabod's Apothecary</span>
+      <span class="p-sep">|</span>
+      <span class="p-subtitle">Class portal · Unit 4: Decoctions and Roots</span>
+    </div>
+    <div class="p-right">
+      <button class="nav-pill" @click="page='home'">← Home</button>
+    </div>
+  </div>
+
+  <!-- Access modal (if tier none) -->
+  <div class="modal-ov" x-show="accessTier === 'none'" x-cloak>
+    <div class="modal-card">
+      <div x-show="!modalSuccess">
+        <h2 class="m-title">Enter the Class</h2>
+        <p class="m-sub">Choose the door you'll come through.</p>
+        <div class="access-stack">
+          <button class="auth-btn primary" @click="handleAccess('student')">Enroll as Student</button>
+          <button class="auth-btn ember" @click="handleAccess('certified')">I'm Certified</button>
+          <button class="auth-btn" @click="handleAccess('free')">Audit (Free)</button>
+        </div>
+        <button @click="page='home'" style="display:block;width:100%;margin-top:1.25rem;font-family:var(--serif-disp);font-size:0.625rem;letter-spacing:0.10em;color:var(--muted);background:none;border:none;cursor:pointer;text-transform:uppercase;">← Return Home</button>
+      </div>
+      <div x-show="modalSuccess">
+        <h2 class="m-title">Welcome in.</h2>
+        <p class="m-sub">A seat has been kept for you. Class begins shortly.</p>
+        <button class="auth-btn primary" @click="accessTier=pendingTier; modalSuccess=false;">Enter the Hall</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Portal content -->
+  <div x-show="accessTier !== 'none'" class="portal-body">
+    <div class="portal-grid">
+
+      <!-- LEFT COLUMN: Video player + Chat -->
+      <div>
+        <div id="vpWrap" class="vp-wrap">
+          <!-- minimized -->
+          <div class="vp-min-bar" x-show="vpMin">
+            <div class="vp-min-live">
+              <div class="live-dot"></div>
+              <span x-text="vpPaused ? 'Class — Paused' : 'Class — Live'"></span>
+              <span style="opacity:0.7;font-size:0.75rem;margin-left:0.4rem;" x-text="'· Unit 4 · ' + (vpRes==='auto'?'Auto':vpRes+'p')"></span>
+            </div>
+            <button class="ctrl-btn ctrl-on" @click="vpMin=false">▲ Restore</button>
+          </div>
+
+          <div class="vp-body" x-show="!vpMin">
+            <canvas id="vpCanvas" class="vp-frame" style="background:#1c1815;" x-init="$nextTick(()=>startCanvas())"></canvas>
+
+            <!-- Stream info -->
+            <div class="vp-stream-info">
+              <div class="vp-live-pill">
+                <div class="live-dot"></div>
+                <span>LIVE</span>
+              </div>
+              <div class="vp-stream-meta">
+                <span class="vp-stream-title">Unit 4 · Decoctions, Roots, &amp; the Patience of Long Steeping</span>
+                <span class="vp-stream-sub" x-text="vpViewers + ' herbalists in attendance · Cohort III'"></span>
+              </div>
+            </div>
+
+            <div class="vp-glyph">⚯ Wildcraft Studios</div>
+
+            <!-- Hands raised -->
+            <div class="vp-hands-ov" x-show="vpRaisedHands.length > 0" x-cloak>
+              <div class="hands-label">Hands Raised</div>
+              <template x-for="h in vpRaisedHands" :key="h.user">
+                <div class="hand-pill" :class="{'hand-pill-me': h.isMe}">
+                  <span x-text="(h.isMe ? (currentUser || 'You') : h.display) + ' ✋'"></span>
+                </div>
+              </template>
+            </div>
+
+            <!-- Reaction feed -->
+            <div class="vp-rfeed" x-show="vpReactionFeed.length > 0" x-cloak>
+              <template x-for="r in vpReactionFeed.slice(-6)" :key="r.id">
+                <div class="rfeed-row">
+                  <span class="rfeed-emoji" x-text="r.emoji"></span>
+                  <span class="rfeed-info">
+                    <span class="rfeed-user" x-text="r.user"></span>
+                    <span class="rfeed-time" x-text="r.time"></span>
+                  </span>
+                </div>
+              </template>
+            </div>
+
+            <!-- Floating emoji -->
+            <div class="vp-float-layer">
+              <template x-for="r in vpFloating" :key="r.id">
+                <div class="vp-float-emoji" :style="`left:${r.x}%`" x-text="r.emoji"
+                     @animationend="vpFloating = vpFloating.filter(f => f.id !== r.id)"></div>
+              </template>
+            </div>
+
+            <!-- Pause overlay -->
+            <div class="vp-pause-ov" x-show="vpPaused" x-cloak>
+              <div class="vp-pause-circle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              </div>
+            </div>
+
+            <!-- Scrub bar -->
+            <div class="vp-scrub">
+              <div class="vp-scrub-track" @click="onScrub($event)">
+                <div class="vp-scrub-buffer" :style="`width:${(vpDuration/7200)*100}%`"></div>
+                <div class="vp-scrub-fill" :style="`width:${(vpCurrentTime/Math.max(vpDuration,1))*100}%`"></div>
+                <div class="vp-scrub-thumb" :style="`left:${(vpCurrentTime/Math.max(vpDuration,1))*100}%`"></div>
+              </div>
+              <div class="vp-scrub-meta">
+                <span x-text="fmtTime(vpCurrentTime)"></span>
+                <span class="vp-scrub-livepill" :class="{'is-live': vpIsLiveEdge}" @click="jumpToLive()">
+                  <span class="live-dot" x-show="vpIsLiveEdge"></span>
+                  <span x-text="vpIsLiveEdge ? 'LIVE' : 'GO LIVE'"></span>
+                </span>
+              </div>
+            </div>
+
+            <!-- Controls bar -->
+            <div class="vp-controls">
+              <div class="vp-ctrl-l">
+                <button class="ctrl-btn" @click="vpPaused = !vpPaused" :title="vpPaused ? 'Resume' : 'Pause'">
+                  <template x-if="!vpPaused"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg></template>
+                  <template x-if="vpPaused"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></template>
+                  <span x-text="vpPaused ? 'Play' : 'Pause'"></span>
+                </button>
+                <template x-for="em in vpEmojis" :key="em">
+                  <button class="react-btn" x-text="em" :title="em" @click="sendReaction(em)"></button>
+                </template>
+              </div>
+              <div class="vp-ctrl-c">
+                <button class="hand-btn" :class="{'hand-active': vpHandRaised}" @click="toggleHand()">
+                  <template x-if="!vpHandRaised"><span>✋ Raise Hand</span></template>
+                  <template x-if="vpHandRaised"><span><span x-text="(currentUser || 'You') + ' ✋'"></span> · tap to lower</span></template>
+                </button>
+              </div>
+              <div class="vp-ctrl-r">
+                <button class="ctrl-btn" @click="vpMin=true" title="Minimize">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  <span>Min</span>
+                </button>
+                <button class="ctrl-btn" @click="toggleFull()" :title="vpFull?'Exit':'Fullscreen'">
+                  <template x-if="!vpFull"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></template>
+                  <template x-if="vpFull"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/></svg></template>
+                  <span x-text="vpFull?'Exit':'Full'"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat (below video) -->
+        <div class="chat-card">
+          <div class="chat-head">
+            <h3>Class Chat</h3>
+            <div style="display:flex;align-items:center;gap:0.4375rem;font-family:var(--serif-disp);font-size:0.5625rem;letter-spacing:0.10em;color:var(--muted);text-transform:uppercase;">
+              <div class="live-dot"></div>
+              <span>Cohort III</span>
+            </div>
+          </div>
+          <div class="chat-msgs" id="chatMsgs">
+            <template x-for="(m, i) in chatMessages" :key="i">
+              <div>
+                <div class="msg-meta">
+                  <span class="msg-user" x-text="m.user"></span>
+                  <span class="msg-time" x-text="m.time"></span>
+                </div>
+                <p class="msg-text" x-text="m.text"></p>
+              </div>
+            </template>
+          </div>
+          <div class="chat-foot">
+            <div x-show="rank(accessTier) >= rank('student')">
+              <div class="chat-row">
+                <input class="chat-in" type="text" placeholder="Speak with the cohort…" x-model="chatInput" @keyup.enter="sendChat()">
+                <button class="chat-send" @click="sendChat()">Send</button>
+              </div>
+            </div>
+            <div x-show="rank(accessTier) < rank('student')" style="text-align:center;">
+              <p style="font-family:var(--serif-body);font-style:italic;font-size:0.875rem;color:var(--muted);margin-bottom:0.4375rem;">Auditing the class — enroll to participate.</p>
+              <button class="auth-btn ember" style="padding:0.4375rem 1rem;font-size:0.625rem;width:auto;" @click="page='signin'">Enroll</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: Transcript pane -->
+      <div class="transcript-card">
+        <div class="transcript-head">
+          <div class="transcript-head-l">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--ink);"><path d="M4 4h16v4H4z"/><path d="M4 12h16v4H4z"/><path d="M4 20h10v0"/></svg>
+            <h3>Transcript</h3>
+          </div>
+          <div class="transcript-tabs">
+            <button class="tt-btn" :class="{'is-active': transcriptTab==='live'}"
+                    @click="transcriptTab='live'">Live</button>
+            <button class="tt-btn" :class="{'is-active': transcriptTab==='mine'}"
+                    @click="transcriptTab='mine'">My Notes</button>
+          </div>
+        </div>
+
+        <div class="transcript-body" id="transcriptBody">
+          <!-- Live transcript -->
+          <template x-if="transcriptTab === 'live'">
+            <div>
+              <template x-for="line in transcriptLines" :key="line.id">
+                <div>
+                  <div class="tr-line"
+                       :class="{'has-note': hasMyNote(line.id), 'is-active': activeLineId === line.id}"
+                       @click="rank(accessTier) >= rank('student') ? openAnnotForm(line.id) : null">
+                    <div class="tr-line-meta">
+                      <span class="tr-line-time" x-text="fmtTime(line.t)"></span>
+                      <span class="tr-line-speaker" x-text="line.speaker"></span>
+                      <span class="tr-line-note-flag" x-show="hasMyNote(line.id)" x-cloak>✎ noted</span>
+                    </div>
+                    <div class="tr-line-text" x-html="line.text"></div>
+                  </div>
+
+                  <!-- My note attached to this line -->
+                  <template x-if="myNoteFor(line.id)">
+                    <div class="tr-note">
+                      <div x-text="myNoteFor(line.id).text"></div>
+                      <div class="tr-note-meta">
+                        <span class="tr-note-author" x-text="myNoteFor(line.id).by"></span>
+                        ·
+                        <span x-text="myNoteFor(line.id).savedAt"></span>
+                      </div>
+                    </div>
+                  </template>
+
+                  <!-- Annotation composer -->
+                  <template x-if="activeLineId === line.id && rank(accessTier) >= rank('student')">
+                    <div class="annot-form" @click.stop>
+                      <textarea class="annot-input" x-ref="annotInput"
+                                placeholder="write your note in cursive…"
+                                x-model="annotDraft"
+                                @keyup.escape="closeAnnotForm()"></textarea>
+                      <div class="annot-actions">
+                        <span class="annot-hint" x-text="hasMyNote(line.id) ? 'editing existing note' : 'saves to your knowledge store'"></span>
+                        <div class="annot-btns">
+                          <button class="annot-btn" @click="closeAnnotForm()">Cancel</button>
+                          <button class="annot-btn save" @click="saveAnnotation(line.id)">Save</button>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </template>
+              <div x-show="transcriptLines.length === 0" style="font-family:var(--serif-body);font-style:italic;color:var(--muted);text-align:center;padding:2rem 1rem;">
+                Class is gathering. Transcript begins when Ichabod speaks.
+              </div>
+            </div>
+          </template>
+
+          <!-- My Notes only -->
+          <template x-if="transcriptTab === 'mine'">
+            <div>
+              <template x-for="ann in myAnnotations" :key="ann.id">
+                <div class="tr-line has-note">
+                  <div class="tr-line-meta">
+                    <span class="tr-line-time" x-text="fmtTime(transcriptLines.find(l=>l.id===ann.lineId)?.t || 0)"></span>
+                    <span class="tr-line-speaker" x-text="transcriptLines.find(l=>l.id===ann.lineId)?.speaker || 'Class'"></span>
+                    <span class="tr-line-note-flag">✎ note</span>
+                  </div>
+                  <div class="tr-line-text" style="font-style:italic;color:var(--ink-soft);" x-text="'\\u201c' + (transcriptLines.find(l=>l.id===ann.lineId)?.text.replace(/<[^>]+>/g,'') || '...') + '\\u201d'"></div>
+                  <div class="tr-note" style="margin-top:0.5rem;">
+                    <div x-text="ann.text"></div>
+                    <div class="tr-note-meta">saved <span x-text="ann.savedAt"></span></div>
+                  </div>
+                </div>
+              </template>
+              <div x-show="myAnnotations.length === 0" style="font-family:var(--serif-body);font-style:italic;color:var(--muted);text-align:center;padding:2rem 1rem;">
+                No notes yet. Click any transcript line to write one.
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAGE: KNOWLEDGE STORE ══ -->
+<div x-show="page === 'knowledge'" class="page z1">
+  <div class="knowledge-wrap">
+    <div class="knowledge-head">
+      <div class="corner tl"><svg viewBox="0 0 56 56"><g stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"><path d="M2 2 L18 2 Q22 2 22 6"/><path d="M2 2 L2 18 Q2 22 6 22"/><path d="M4 8 Q10 12 14 18"/><circle cx="14" cy="18" r="1.5" fill="currentColor"/><path d="M18 4 Q14 10 16 16 Q18 22 24 24"/></g></svg></div>
+      <div class="corner tr"><svg viewBox="0 0 56 56"><g stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"><path d="M2 2 L18 2 Q22 2 22 6"/><path d="M2 2 L2 18 Q2 22 6 22"/><path d="M4 8 Q10 12 14 18"/><circle cx="14" cy="18" r="1.5" fill="currentColor"/><path d="M18 4 Q14 10 16 16 Q18 22 24 24"/></g></svg></div>
+      <div class="corner bl"><svg viewBox="0 0 56 56"><g stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"><path d="M2 2 L18 2 Q22 2 22 6"/><path d="M2 2 L2 18 Q2 22 6 22"/><path d="M4 8 Q10 12 14 18"/><circle cx="14" cy="18" r="1.5" fill="currentColor"/><path d="M18 4 Q14 10 16 16 Q18 22 24 24"/></g></svg></div>
+      <div class="corner br"><svg viewBox="0 0 56 56"><g stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"><path d="M2 2 L18 2 Q22 2 22 6"/><path d="M2 2 L2 18 Q2 22 6 22"/><path d="M4 8 Q10 12 14 18"/><circle cx="14" cy="18" r="1.5" fill="currentColor"/><path d="M18 4 Q14 10 16 16 Q18 22 24 24"/></g></svg></div>
+      <h1>Your Bound Volume</h1>
+      <div class="script">a knowledge store</div>
+      <p>The notes you've taken across class. Every annotation, kept in your hand, indexed by lesson and ready for the practice ahead.</p>
+      <div class="knowledge-stats">
+        <div class="kstat"><div class="kstat-num" x-text="myAnnotations.length"></div><div class="kstat-lbl">Notes</div></div>
+        <div class="kstat"><div class="kstat-num" x-text="uniqueSessionsWithNotes"></div><div class="kstat-lbl">Sessions</div></div>
+        <div class="kstat"><div class="kstat-num" x-text="(myAnnotations.length * 12) + 'm'"></div><div class="kstat-lbl">Time Kept</div></div>
+      </div>
+    </div>
+
+    <!-- v2 Toolbar: search + tag filters + free note button -->
+    <div class="ks-toolbar">
+      <input class="ks-search" type="text"
+             placeholder="Search across your notes — by quote, word, or session…"
+             x-model="ksSearch">
+      <button class="ks-add-btn" @click="ksFreeOpen = true; ksFreeText = ''; ksFreeTags = ''; ksFreeTitle = ''">
+        + Free-Form Note
+      </button>
+      <div class="ks-tag-row" style="width:100%;">
+        <span style="font-family:var(--serif-disp);font-size:0.5rem;letter-spacing:0.10em;color:var(--muted);text-transform:uppercase;align-self:center;margin-right:0.4375rem;">Filter:</span>
+        <template x-for="tag in availableTags" :key="tag">
+          <button class="ks-tag" :class="{'is-active': ksTagFilter === tag}"
+                  @click="ksTagFilter = (ksTagFilter === tag ? '' : tag)"
+                  x-text="tag"></button>
+        </template>
+        <button x-show="ksTagFilter || ksSearch" class="ks-tag" style="background:var(--ember);color:var(--cream);border-color:var(--ember);" @click="ksTagFilter=''; ksSearch=''">Clear ×</button>
+      </div>
+    </div>
+
+    <template x-if="filteredMyAnnotations.length === 0 && myAnnotations.length > 0">
+      <div class="know-empty">No notes match this filter. <button class="know-act-btn" style="margin-left:0.5rem;" @click="ksTagFilter=''; ksSearch=''">Clear filter</button></div>
+    </template>
+
+    <template x-if="myAnnotations.length === 0">
+      <div class="know-empty">Your store is empty. Begin annotating during class — or add a free-form note above.</div>
+    </template>
+
+    <template x-for="ann in filteredMyAnnotations" :key="ann.id">
+      <div class="know-entry">
+        <div class="corner tl"><svg viewBox="0 0 36 36"><g stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"><path d="M2 2 L12 2"/><path d="M2 2 L2 12"/><path d="M4 6 Q8 10 8 14"/><circle cx="8" cy="14" r="0.9" fill="currentColor"/></g></svg></div>
+        <div class="corner tr"><svg viewBox="0 0 36 36"><g stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"><path d="M2 2 L12 2"/><path d="M2 2 L2 12"/><path d="M4 6 Q8 10 8 14"/><circle cx="8" cy="14" r="0.9" fill="currentColor"/></g></svg></div>
+        <div class="know-entry-head">
+          <span class="know-session" x-text="ann.session || (ann.freeForm ? 'Free Note' : 'Unit 4 · Decoctions')"></span>
+          <span class="know-time" x-text="ann.savedAt"></span>
+        </div>
+        <div class="know-quote" x-show="!ann.freeForm" x-text="(transcriptLines.find(l=>l.id===ann.lineId)?.text || '...').replace(/<[^>]+>/g,'')"></div>
+        <div x-show="ann.freeForm && ann.title" style="font-family:var(--serif-disp);font-size:0.875rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:0.4375rem;" x-text="ann.title"></div>
+        <div class="know-note" x-text="ann.text"></div>
+
+        <!-- Categories / tags -->
+        <div class="know-cats" x-show="(ann.tags && ann.tags.length) || (ann.history && ann.history.length > 0)">
+          <template x-for="tag in (ann.tags || [])" :key="tag">
+            <span class="know-cat" x-text="tag"></span>
+          </template>
+          <span class="know-cat evolved" x-show="ann.history && ann.history.length > 0"
+                x-text="'Evolved · ' + ann.history.length + ' rev' + (ann.history.length === 1 ? '' : 's')"></span>
+        </div>
+
+        <!-- Version history (collapsible) -->
+        <template x-if="ann.history && ann.history.length > 0">
+          <div>
+            <button class="ks-history-toggle" @click="ann._showHistory = !ann._showHistory"
+                    x-text="(ann._showHistory ? '▾ Hide' : '▸ Show') + ' evolution (' + ann.history.length + ')'"></button>
+            <div class="ks-history" x-show="ann._showHistory" x-cloak>
+              <template x-for="(h, hi) in ann.history" :key="hi">
+                <div class="ks-history-row">
+                  <span class="when" x-text="h.savedAt"></span>
+                  <span class="what" x-text="h.text"></span>
+                </div>
+              </template>
+              <div class="ks-history-row" style="border-top:1px dashed var(--border);padding-top:0.375rem;">
+                <span class="when" style="color:var(--ember);">Current</span>
+                <span class="what" style="color:var(--ink);" x-text="ann.text"></span>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <div class="know-actions">
+          <button class="know-act-btn" x-show="!ann.freeForm" @click="page='portal'; transcriptTab='live'; setTimeout(()=>openAnnotForm(ann.lineId),200)">Edit in Class</button>
+          <button class="know-act-btn" x-show="ann.freeForm" @click="openFreeNoteEdit(ann)">Edit</button>
+          <button class="know-act-btn" @click="addTagToAnnotation(ann)">+ Tag</button>
+          <button class="know-act-btn danger" @click="deleteAnnotation(ann.id)">Delete</button>
+        </div>
+      </div>
+    </template>
+  </div>
+</div>
+
+<!-- Free-form note modal (Knowledge Store v2) -->
+<div class="ks-modal-ov" x-show="ksFreeOpen" x-cloak @click.self="ksFreeOpen = false">
+  <div class="ks-modal">
+    <div class="corner tl"><svg viewBox="0 0 48 48"><g stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"><path d="M2 2 L14 2"/><path d="M2 2 L2 14"/><path d="M4 8 Q8 10 10 14"/><circle cx="10" cy="14" r="1" fill="currentColor"/></g></svg></div>
+    <div class="corner tr"><svg viewBox="0 0 48 48"><g stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"><path d="M2 2 L14 2"/><path d="M2 2 L2 14"/><path d="M4 8 Q8 10 10 14"/><circle cx="10" cy="14" r="1" fill="currentColor"/></g></svg></div>
+    <div class="corner bl"><svg viewBox="0 0 48 48"><g stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"><path d="M2 2 L14 2"/><path d="M2 2 L2 14"/><path d="M4 8 Q8 10 10 14"/><circle cx="10" cy="14" r="1" fill="currentColor"/></g></svg></div>
+    <div class="corner br"><svg viewBox="0 0 48 48"><g stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"><path d="M2 2 L14 2"/><path d="M2 2 L2 14"/><path d="M4 8 Q8 10 10 14"/><circle cx="10" cy="14" r="1" fill="currentColor"/></g></svg></div>
+
+    <h3 x-text="ksFreeEditId ? 'Revise Free-Form Note' : 'Add Free-Form Note'"></h3>
+    <div class="sub">a leaf, kept in your hand</div>
+
+    <input class="ks-modal-fld" type="text" placeholder="Title (optional) — e.g. 'Grandmother's gargle remedy'"
+           x-model="ksFreeTitle">
+    <textarea class="ks-modal-fld script" placeholder="write in your own hand…"
+              x-model="ksFreeText" x-ref="ksFreeArea"></textarea>
+    <input class="ks-modal-fld" type="text"
+           placeholder="Tags (comma-separated) — e.g. preparation, dosage, family-tradition"
+           x-model="ksFreeTags">
+
+    <div class="ks-modal-actions">
+      <button class="ks-modal-btn" @click="ksFreeOpen = false">Cancel</button>
+      <button class="ks-modal-btn save" @click="saveFreeNote()" x-text="ksFreeEditId ? 'Save Revision' : 'Save to Volume'"></button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAGE: ARCHIVE ══ -->
+<div x-show="page === 'archive'" class="page z1">
+  <div class="archive-wrap">
+    <div class="archive-head" style="text-align:center;padding:2.5rem 1.5rem;margin-bottom:2.5rem;background:var(--card);border:2px solid var(--accent);box-shadow:inset 0 0 0 5px var(--card),inset 0 0 0 6px var(--gilded),0 4px 18px var(--shadow);position:relative;">
+      <div class="corner tl"><svg viewBox="0 0 56 56"><g stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"><path d="M2 2 L18 2 Q22 2 22 6"/><path d="M2 2 L2 18 Q2 22 6 22"/><path d="M4 8 Q10 12 14 18"/><circle cx="14" cy="18" r="1.5" fill="currentColor"/></g></svg></div>
+      <div class="corner tr"><svg viewBox="0 0 56 56"><g stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"><path d="M2 2 L18 2 Q22 2 22 6"/><path d="M2 2 L2 18 Q2 22 6 22"/><path d="M4 8 Q10 12 14 18"/><circle cx="14" cy="18" r="1.5" fill="currentColor"/></g></svg></div>
+      <div class="corner bl"><svg viewBox="0 0 56 56"><g stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"><path d="M2 2 L18 2 Q22 2 22 6"/><path d="M2 2 L2 18 Q2 22 6 22"/><path d="M4 8 Q10 12 14 18"/><circle cx="14" cy="18" r="1.5" fill="currentColor"/></g></svg></div>
+      <div class="corner br"><svg viewBox="0 0 56 56"><g stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"><path d="M2 2 L18 2 Q22 2 22 6"/><path d="M2 2 L2 18 Q2 22 6 22"/><path d="M4 8 Q10 12 14 18"/><circle cx="14" cy="18" r="1.5" fill="currentColor"/></g></svg></div>
+      <div style="font-family:var(--serif-disp);font-size:0.625rem;letter-spacing:0.20em;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem;">⁂  Past Lessons  ⁂  Recorded by Lamplight  ⁂</div>
+      <h1 style="font-family:var(--serif-disp);font-weight:700;font-size:clamp(1.875rem,3.5vw,2.5rem);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.4375rem;color:var(--ink);">The Lesson Archive</h1>
+      <div style="font-family:var(--script);font-size:clamp(1.375rem,2.5vw,1.875rem);color:var(--rose);margin-bottom:0.75rem;">every session, kept</div>
+      <p style="font-family:var(--serif-body);font-style:italic;color:var(--ink-soft);font-size:1.0625rem;max-width:540px;margin:0 auto;">Every recorded session. Each opens with its transcript and your annotations alongside.</p>
+    </div>
+    <div class="archive-grid">
+      <template x-for="item in archiveItems" :key="item.id">
+        <div class="arch-card" @click="toast='Replay opening: ' + item.title; setTimeout(()=>toast='', 2400); page='portal';">
+          <div class="arch-thumb">
+            <canvas :id="'archthumb-' + item.id"></canvas>
+            <div class="arch-duration" x-text="item.duration"></div>
+          </div>
+          <div class="arch-meta">
+            <div class="arch-unit" x-text="item.unit"></div>
+            <div class="arch-title" x-text="item.title"></div>
+            <div class="arch-stats">
+              <span x-text="item.date"></span>
+              <span>·</span>
+              <span x-text="item.notesCount + ' cohort notes'"></span>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAGE: SIGN IN ══ -->
+<div x-show="page === 'signin'" class="page z1">
+  <div class="signin-wrap">
+    <div class="signin-card">
+      <svg width="44" height="44" viewBox="0 0 64 64" fill="none" style="display:block;margin:0 auto 1.25rem;color:var(--ink);">
+        <path d="M14 36 L50 36 L46 56 L18 56 Z" stroke="currentColor" stroke-width="1.6" fill="none"/>
+        <path d="M32 22 L32 10" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M32 18 C28 14 28 10 30 8 M32 18 C36 14 36 10 34 8" stroke="currentColor" stroke-width="1.2" fill="none"/>
+      </svg>
+      <h2 style="font-family:var(--serif-disp);font-weight:600;font-size:1.5rem;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:0.5rem;">Sign In</h2>
+      <p style="font-family:var(--serif-body);font-style:italic;color:var(--ink-soft);margin-bottom:1.5rem;">Cross the threshold.</p>
+
+      <div class="access-stack">
+        <input class="form-fld" type="email" placeholder="reader@example.com" x-model="signinEmail">
+        <button class="auth-btn primary" @click="signinReader()">Send Magic Link →</button>
+        <button class="auth-btn ember" @click="enterPortal('certified')">I'm Already Certified</button>
+        <button class="auth-btn" @click="enterPortal('free')">Audit Free</button>
+      </div>
+
+      <div class="divider"><div class="div-line"></div><span class="div-txt">staff</span><div class="div-line"></div></div>
+
+      <input class="form-fld" type="text" placeholder="Username" x-model="staffUser">
+      <input class="form-fld" type="password" placeholder="Password" x-model="staffPass" @keyup.enter="staffLogin()">
+      <div class="form-err" x-show="staffErr" x-text="staffErr"></div>
+      <button class="auth-btn" @click="staffLogin()">Staff Sign In</button>
+
+      <div class="demo-creds">
+        <strong>Demo credentials</strong><br>
+        Instructor → <code>instructor</code> / <code>instructor</code><br>
+        Admin → <code>admin</code> / <code>admin</code><br>
+        Student → any email
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAGE: ADMIN LOGIN ══ -->
+<div x-show="page === 'admin-login'" class="page z1">
+  <div class="signin-wrap">
+    <div class="signin-card">
+      <h2 style="font-family:var(--serif-disp);font-weight:600;font-size:1.375rem;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:0.5rem;">Admin / Instructor</h2>
+      <p style="font-family:var(--serif-body);font-style:italic;color:var(--ink-soft);margin-bottom:1.25rem;">Restricted access — staff credentials only.</p>
+      <input class="form-fld" type="text" placeholder="Username" x-model="staffUser" autofocus>
+      <input class="form-fld" type="password" placeholder="Password" x-model="staffPass" @keyup.enter="staffLogin()">
+      <div class="form-err" x-show="staffErr" x-text="staffErr"></div>
+      <button class="auth-btn primary" @click="staffLogin()">Sign In</button>
+      <div class="demo-creds">
+        Admin → <code>admin</code> / <code>admin</code><br>
+        Instructor → <code>instructor</code> / <code>instructor</code>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAGE: ADMIN PORTAL ══ -->
+<div x-show="page === 'admin'" class="page z1">
+  <template x-if="rank(accessTier) < rank('instructor')">
+    <div class="signin-wrap">
+      <div class="signin-card">
+        <h2 style="font-family:var(--serif-disp);font-weight:600;font-size:1.375rem;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:0.5rem;">Restricted</h2>
+        <p style="font-family:var(--serif-body);font-style:italic;color:var(--ink-soft);margin-bottom:1rem;">Staff credentials required.</p>
+        <button class="auth-btn primary" @click="page='admin-login'">Sign In</button>
+      </div>
+    </div>
+  </template>
+
+  <template x-if="rank(accessTier) >= rank('instructor')">
+    <div class="admin-layout">
+
+      <aside class="admin-sidebar">
+        <div class="admin-side-section" x-text="accessTier==='admin' ? 'Admin Tools' : 'Instructor Tools'"></div>
+        <button class="admin-nav-btn" :class="{'is-active': adminTab==='stream'}"      @click="adminTab='stream'">Stream Control</button>
+        <button class="admin-nav-btn" :class="{'is-active': adminTab==='audience'}"    @click="adminTab='audience'">Cohort
+          <span class="admin-nav-badge" x-show="cohortList.filter(u=>u.handRaised).length > 0" x-text="cohortList.filter(u=>u.handRaised).length"></span>
+        </button>
+        <button class="admin-nav-btn" :class="{'is-active': adminTab==='annotations'}" @click="adminTab='annotations'">Knowledge Store
+          <span class="admin-nav-badge" x-show="allCohortAnnotations.length > 0" x-text="allCohortAnnotations.length"></span>
+        </button>
+        <button class="admin-nav-btn" :class="{'is-active': adminTab==='chat'}"        @click="adminTab='chat'">Chat &amp; Moderation</button>
+        <button class="admin-nav-btn" :class="{'is-active': adminTab==='analytics'}"   @click="adminTab='analytics'">Analytics</button>
+        <button class="admin-nav-btn" :class="{'is-active': adminTab==='archive'}"     @click="adminTab='archive'; $nextTick(()=>renderArchiveThumbs())">Lesson Archive</button>
+        <div class="admin-side-section" style="margin-top:0.75rem;">View Site As</div>
+        <button class="admin-nav-btn" @click="page='portal'">Class Portal</button>
+        <button class="admin-nav-btn" @click="page='home'">Public Home</button>
+        <button class="admin-nav-btn" @click="page='shop'">Shop</button>
+        <div style="border-top:1px solid var(--border);margin-top:0.75rem;padding-top:0.75rem;">
+          <div style="font-family:var(--serif-body);font-style:italic;font-size:0.75rem;color:var(--muted);padding:0 0.75rem 0.5rem;">
+            Signed in as<br>
+            <span style="color:var(--ember);font-style:normal;font-family:var(--serif-disp);font-size:0.6875rem;letter-spacing:0.06em;" x-text="currentUser"></span>
+          </div>
+          <button class="admin-nav-btn" @click="adminLogout()" style="color:var(--burgundy);">Sign Out</button>
+        </div>
+      </aside>
+
+      <main class="admin-main">
+
+        <!-- Stream Control -->
+        <template x-if="adminTab==='stream'">
+          <div>
+            <div class="admin-head">
+              <div>
+                <h2 class="admin-title">Stream Control</h2>
+                <div class="admin-sub">What goes out, and what the cohort sees.</div>
+              </div>
+              <div style="display:flex;gap:0.625rem;align-items:center;flex-wrap:wrap;">
+                <div class="view-as">
+                  <button class="view-as-btn" :class="{'is-active': adminViewAs==='admin'}"  @click="adminViewAs='admin'">Admin</button>
+                  <button class="view-as-btn" :class="{'is-active': adminViewAs==='member'}" @click="adminViewAs='member'; $nextTick(()=>startPreviewCanvas())">Cohort</button>
+                </div>
+                <span class="admin-pill" :class="adminBroadcastLive?'admin-pill-live':'admin-pill-off'">
+                  <span class="live-dot" :style="adminBroadcastLive?'background:#fff':'background:var(--muted);animation:none'"></span>
+                  <span x-text="adminBroadcastLive ? 'On Air' : 'Off Air'"></span>
+                </span>
+                <button class="auth-btn" style="padding:0.4375rem 1rem;width:auto;font-size:0.625rem;" @click="adminBroadcastLive=!adminBroadcastLive">
+                  <span x-text="adminBroadcastLive?'Stop':'Resume'"></span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Live Preview frame (canvas mirror) -->
+            <div class="member-preview-wrap">
+              <div class="member-preview-head">
+                <div style="display:flex;align-items:center;gap:0.625rem;font-family:var(--serif-body);font-style:italic;font-size:0.875rem;color:var(--muted);">
+                  <span class="member-preview-pin">Live Preview · Cohort View</span>
+                </div>
+                <div style="font-family:var(--serif-disp);font-size:0.5625rem;letter-spacing:0.10em;color:var(--muted);">
+                  <span x-text="vpViewers"></span> attending · <span x-text="fmtTime(vpDuration)"></span>
+                </div>
+              </div>
+              <div class="live-prev-frame">
+                <canvas id="lpCanvas" class="live-prev-canvas" x-init="$nextTick(()=>startPreviewCanvas())"></canvas>
+                <div class="live-prev-info">
+                  <div class="live-dot" :style="adminBroadcastLive?'':'background:var(--muted);animation:none'"></div>
+                  <span x-text="adminBroadcastLive?'LIVE':'OFF AIR'"></span>
+                </div>
+                <div class="live-prev-status" :class="{'is-off': !adminBroadcastLive}" x-text="adminBroadcastLive?'BROADCASTING':'STOPPED'"></div>
+              </div>
+              <div class="live-prev-meta">
+                <div class="lpm-cell"><div class="lpm-lbl">Source</div><div class="lpm-val">Wildcraft Studio</div></div>
+                <div class="lpm-cell"><div class="lpm-lbl">Lesson</div><div class="lpm-val">Unit 4 · Decoctions</div></div>
+                <div class="lpm-cell"><div class="lpm-lbl">Transcript</div><div class="lpm-val" x-text="transcriptLines.length + ' lines'"></div></div>
+              </div>
+            </div>
+
+            <div class="admin-grid-2">
+              <div class="admin-card">
+                <div class="admin-card-h"><div class="admin-card-t">Stream Source</div></div>
+                <p style="font-family:var(--serif-body);font-size:0.875rem;color:var(--ink-soft);margin-bottom:0.625rem;">Currently broadcasting from the studio capture rig.</p>
+                <button class="auth-btn" style="font-size:0.625rem;width:100%;">Switch Source</button>
+              </div>
+              <div class="admin-card">
+                <div class="admin-card-h"><div class="admin-card-t">Recording &amp; Archive</div></div>
+                <div style="display:flex;justify-content:space-between;font-family:var(--serif-body);font-size:0.875rem;margin-bottom:0.4375rem;">
+                  <span style="color:var(--muted);">Auto-archive on end</span>
+                  <span style="color:var(--forest);font-weight:600;">● Enabled</span>
+                </div>
+                <button class="auth-btn primary" style="font-size:0.625rem;width:100%;">💾 Save Current Session</button>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <!-- Cohort (Audience) -->
+        <template x-if="adminTab==='audience'">
+          <div>
+            <div class="admin-head">
+              <div>
+                <h2 class="admin-title">Cohort III · Live</h2>
+                <div class="admin-sub">Who's in attendance, who's raised a hand, who's quiet.</div>
+              </div>
+              <span class="admin-pill admin-pill-live">
+                <span class="live-dot" style="background:#fff;"></span>
+                <span x-text="cohortList.filter(u=>u.online).length + ' in hall'"></span>
+              </span>
+            </div>
+            <div class="stat-row">
+              <div class="stat-tile"><div class="stat-lbl">In Hall</div><div class="stat-val" x-text="cohortList.filter(u=>u.online).length"></div><div class="stat-delta">+2 in last 5 min</div></div>
+              <div class="stat-tile"><div class="stat-lbl">Hands Raised</div><div class="stat-val" x-text="cohortList.filter(u=>u.handRaised).length"></div><div class="stat-delta" x-show="cohortList.filter(u=>u.handRaised).length > 0">Awaiting</div></div>
+              <div class="stat-tile"><div class="stat-lbl">Notes Taken</div><div class="stat-val" x-text="allCohortAnnotations.length"></div><div class="stat-delta">this session</div></div>
+              <div class="stat-tile"><div class="stat-lbl">Reactions</div><div class="stat-val" x-text="vpReactionFeed.length"></div><div class="stat-delta">all-time</div></div>
+            </div>
+            <div class="admin-card">
+              <div class="admin-card-h"><div class="admin-card-t">Students in Attendance</div></div>
+              <div class="aud-list">
+                <template x-for="u in cohortList" :key="u.user">
+                  <div class="aud-row">
+                    <div class="aud-avatar" x-text="u.user.replace('@','').slice(0,2).toUpperCase()"></div>
+                    <div class="aud-info">
+                      <div class="aud-name" x-text="u.user"></div>
+                      <div class="aud-meta">
+                        <span x-text="'joined ' + u.joinedAt"></span>
+                        <span>·</span>
+                        <span x-text="u.notes + ' notes'"></span>
+                        <span class="aud-tier-pill" :class="u.tier" x-text="u.tier"></span>
+                        <template x-if="u.handRaised">
+                          <span style="font-family:var(--serif-disp);font-size:0.5rem;letter-spacing:0.10em;color:var(--ember);">✋ hand</span>
+                        </template>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <!-- Annotations (cohort knowledge store, instructor-only view) -->
+        <template x-if="adminTab==='annotations'">
+          <div>
+            <div class="admin-head">
+              <div>
+                <h2 class="admin-title">Cohort Knowledge Store</h2>
+                <div class="admin-sub">Every annotation, every student. The instructor's most useful tool — see what landed, what confused, what got copied down.</div>
+              </div>
+              <div style="display:flex;gap:0.4375rem;align-items:center;">
+                <span class="admin-pill admin-pill-off">
+                  <span x-text="allCohortAnnotations.length + ' notes'"></span>
+                </span>
+                <select class="dp-sel" style="flex:none;width:auto;" x-model="annotFilter">
+                  <option value="all">All students</option>
+                  <template x-for="u in cohortList.filter(u=>u.tier!=='instructor' && u.tier!=='admin')" :key="u.user">
+                    <option :value="u.user" x-text="u.user"></option>
+                  </template>
+                </select>
+              </div>
+            </div>
+            <div class="ann-grid">
+              <template x-for="ann in filteredCohortAnnotations" :key="ann.id">
+                <div class="ann-card">
+                  <div class="ann-card-head">
+                    <span class="ann-card-by" x-text="ann.by"></span>
+                    <span class="ann-card-tier" x-text="ann.tier"></span>
+                  </div>
+                  <div class="ann-card-quote" x-text="(transcriptLines.find(l=>l.id===ann.lineId)?.text || '...').replace(/<[^>]+>/g,'')"></div>
+                  <div class="ann-card-note" x-text="ann.text"></div>
+                  <div class="ann-card-time">saved <span x-text="ann.savedAt"></span> · <span x-text="ann.session || 'Unit 4'"></span></div>
+                </div>
+              </template>
+            </div>
+            <div x-show="filteredCohortAnnotations.length === 0" style="text-align:center;padding:3rem 1rem;font-family:var(--serif-body);font-style:italic;color:var(--muted);font-size:1.0625rem;">
+              No notes from this view yet.
+            </div>
+          </div>
+        </template>
+
+        <!-- Chat & Moderation -->
+        <template x-if="adminTab==='chat'">
+          <div>
+            <div class="admin-head">
+              <div>
+                <h2 class="admin-title">Chat &amp; Moderation</h2>
+                <div class="admin-sub">Live channel and flagged messages.</div>
+              </div>
+            </div>
+            <div class="admin-grid-2">
+              <div class="admin-card">
+                <div class="admin-card-t" style="margin-bottom:0.5rem;">Recent Chat</div>
+                <div style="max-height:380px;overflow-y:auto;">
+                  <template x-for="(m,i) in chatMessages.slice(-12)" :key="i">
+                    <div style="padding:0.5rem 0;border-bottom:1px solid var(--border);">
+                      <div class="msg-meta"><span class="msg-user" x-text="m.user"></span><span class="msg-time" x-text="m.time"></span></div>
+                      <p class="msg-text" x-text="m.text"></p>
+                    </div>
+                  </template>
+                </div>
+              </div>
+              <div class="admin-card">
+                <div class="admin-card-t" style="margin-bottom:0.5rem;">Flagged Messages</div>
+                <p style="font-family:var(--serif-body);font-style:italic;color:var(--muted);text-align:center;padding:1.5rem 0;">No flagged messages 🌿</p>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <!-- Analytics -->
+        <template x-if="adminTab==='analytics'">
+          <div>
+            <div class="admin-head"><div><h2 class="admin-title">Analytics</h2><div class="admin-sub">Engagement, attentiveness, the slow numbers.</div></div></div>
+            <div class="stat-row">
+              <div class="stat-tile"><div class="stat-lbl">Reactions Today</div><div class="stat-val" x-text="vpReactionFeed.length + 24"></div><div class="stat-delta">healthy</div></div>
+              <div class="stat-tile"><div class="stat-lbl">Avg Note Length</div><div class="stat-val">22w</div><div class="stat-delta">↑ deeper</div></div>
+              <div class="stat-tile"><div class="stat-lbl">Peak Attendance</div><div class="stat-val" x-text="vpViewers"></div><div class="stat-delta">cohort III</div></div>
+              <div class="stat-tile"><div class="stat-lbl">Sessions</div><div class="stat-val">4 / 24</div><div class="stat-delta">Unit 4 of program</div></div>
+            </div>
+            <div class="admin-card">
+              <div class="admin-card-t" style="margin-bottom:0.625rem;">Lesson Engagement</div>
+              <p style="font-family:var(--serif-body);color:var(--ink-soft);line-height:1.5;">Cohort III is annotating at <strong>1.8× the rate of Cohort II</strong> at the same point in the program. Most-annotated line so far: <em>"the difference between a tea and a decoction is patience."</em></p>
+            </div>
+          </div>
+        </template>
+
+        <!-- Archive Manager -->
+        <template x-if="adminTab==='archive'">
+          <div>
+            <div class="admin-head"><div><h2 class="admin-title">Lesson Archive</h2><div class="admin-sub">All recorded sessions. Open with transcript and cohort annotations attached.</div></div></div>
+            <div class="archive-grid">
+              <template x-for="item in archiveItems" :key="item.id">
+                <div class="arch-card" @click="page='portal'">
+                  <div class="arch-thumb">
+                    <canvas :id="'archthumb-mgr-' + item.id"></canvas>
+                    <div class="arch-duration" x-text="item.duration"></div>
+                  </div>
+                  <div class="arch-meta">
+                    <div class="arch-unit" x-text="item.unit"></div>
+                    <div class="arch-title" x-text="item.title"></div>
+                    <div class="arch-stats">
+                      <span x-text="item.date"></span>
+                      <span>·</span>
+                      <span x-text="item.notesCount + ' cohort notes'"></span>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
+
+      </main>
+    </div>
+  </template>
+</div>
+
+<!-- ══ DEMO CONTROLS FAB ══ -->
+<div class="demo-fab-wrap z1" @click.stop>
+  <button class="demo-fab" @click="demoOpen = !demoOpen" title="Demo Controls">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+    </svg>
+  </button>
+  <div class="demo-panel" x-show="demoOpen" x-cloak>
+    <div class="dp-title">⚡ Demo Controls</div>
+
+    <div class="dp-section">
+      <span class="dp-lbl">State Navigator</span>
+      <div class="dp-row">
+        <span style="font-family:var(--serif-disp);font-size:0.5625rem;letter-spacing:0.10em;color:var(--muted);text-transform:uppercase;">Page</span>
+        <select class="dp-sel" x-model="page">
+          <option value="home">Home</option>
+          <option value="shop">Shop</option>
+          <option value="course">Course (Entry)</option>
+          <option value="portal">Class Portal</option>
+          <option value="knowledge">Knowledge Store</option>
+          <option value="archive">Archive</option>
+          <option value="signin">Sign In</option>
+          <option value="admin-login">Admin Login</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div class="dp-row">
+        <span style="font-family:var(--serif-disp);font-size:0.5625rem;letter-spacing:0.10em;color:var(--muted);text-transform:uppercase;">Tier</span>
+        <select class="dp-sel" x-model="accessTier">
+          <option value="none">None</option>
+          <option value="free">Free (Auditor)</option>
+          <option value="student">Student</option>
+          <option value="certified">Certified</option>
+          <option value="instructor">Instructor</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="dp-section">
+      <span class="dp-lbl">Identity Switcher</span>
+      <div class="dp-grid">
+        <button class="dp-btn" @click="loginAs('admin','admin')">Admin</button>
+        <button class="dp-btn" @click="loginAs('instructor','instructor')">Instructor</button>
+      </div>
+    </div>
+
+    <div class="dp-section">
+      <span class="dp-lbl">Event Injector</span>
+      <div class="dp-grid">
+        <button class="dp-btn" @click="sendReaction(vpEmojis[Math.floor(Math.random()*vpEmojis.length)])">+ Reaction</button>
+        <button class="dp-btn" @click="simHand()">+ Hand</button>
+        <button class="dp-btn" @click="simChat()">+ Chat</button>
+        <button class="dp-btn" @click="emitTranscript()">+ Transcript</button>
+        <button class="dp-btn wide" @click="simCohortAnnotation()">+ Cohort Note</button>
+      </div>
+    </div>
+
+    <div class="dp-section">
+      <span class="dp-lbl">Scenarios</span>
+      <div class="dp-grid">
+        <button class="dp-btn wide ember" @click="playScenario('first-class')">▸ First Class</button>
+        <button class="dp-btn wide ember" @click="playScenario('instructor-view')">▸ Instructor View</button>
+      </div>
+    </div>
+
+    <div class="dp-section">
+      <button class="dp-btn wide" @click="resetAll()">Reset Everything</button>
+    </div>
+
+    <div class="dp-meta">
+      <div>Transcript: <code>simulated · jittered</code></div>
+      <div>Video: <code>Theta Edge (canvas)</code></div>
+      <div>Shop: <code>60% Red Fawn / 40% Ichabod's</code></div>
+      <div>Auth: <code>magic-link + staff</code></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function ichabods() {
+  return {
+    // ── routing & auth ──
+    page: 'home',
+    accessTier: 'none',
+    pendingTier: 'none',
+    modalSuccess: false,
+    currentUser: '@guest',
+    signinEmail: '', staffUser: '', staffPass: '', staffErr: '',
+    demoOpen: false, toast: '', scenarioNarration: '',
+
+    // ── roles ──
+    roles: [
+      { id: 'none',       label: 'Visitor',    rank: 0 },
+      { id: 'free',       label: 'Auditor',    rank: 1 },
+      { id: 'student',    label: 'Student',    rank: 2 },
+      { id: 'certified',  label: 'Certified',  rank: 3 },
+      { id: 'instructor', label: 'Instructor', rank: 4 },
+      { id: 'admin',      label: 'Admin',      rank: 5 },
+    ],
+
+    // ── personas ──
+    personas: [
+      { user:'@willow.fern',    tier:'student',   avatar:'WF', tone:'reverent' },
+      { user:'@sage.bramble',   tier:'student',   avatar:'SB', tone:'careful' },
+      { user:'@rune.ashford',   tier:'student',   avatar:'RA', tone:'poetic' },
+      { user:'@mara.fieldsong', tier:'certified', avatar:'MF', tone:'practical' },
+      { user:'@orin.crane',     tier:'student',   avatar:'OC', tone:'shy' },
+      { user:'@ichabod.crane',  tier:'instructor',avatar:'IC', tone:'archaic' },
+    ],
+
+    // ── cohort roster (admin view) ──
+    cohortList: [],
+
+    // ── video player state ──
+    vpMin: false, vpFull: false, vpPaused: false,
+    vpRes: '720', vpViewers: 23,
+    vpHandRaised: false, vpRaisedHands: [],
+    vpEmojis: ['🌿','🕯️','🍵','✨','📖','🌙'],
+    vpFloating: [], vpReactionFeed: [],
+    vpCurrentTime: 1740, vpDuration: 1800, vpIsLiveEdge: true,
+
+    // ── chat ──
+    chatMessages: [],
+    chatInput: '',
+
+    // ── transcript ──
+    transcriptTab: 'live',
+    transcriptLines: [],
+    transcriptIdx: 0,
+    transcriptScript: [
+      { speaker:'ICHABOD',         text:'Welcome back. Today: <em>decoctions</em>. The slow art of pulling medicine from roots, barks, and woody stems.' },
+      { speaker:'ICHABOD',         text:'A tea is an <em>infusion</em>. You pour hot water over the leaf and you let it sit. The water does the work in minutes.' },
+      { speaker:'ICHABOD',         text:'A decoction is different. The plant is harder, denser. The medicine is locked inside the cell wall. You must <em>simmer</em>.' },
+      { speaker:'ICHABOD',         text:'The difference between a tea and a decoction is <em>patience</em>. The plant knows this even if the student does not.' },
+      { speaker:'ICHABOD',         text:'Burdock root, dandelion root, sarsaparilla, marshmallow root. These all want a long, low simmer — twenty minutes, half an hour.' },
+      { speaker:'@willow.fern',    text:'Does the water need to be soft?' },
+      { speaker:'ICHABOD',         text:'Soft water is kinder to the medicine. Hard water binds with the minerals you are trying to release. If you cannot get soft water, use distilled.' },
+      { speaker:'ICHABOD',         text:'You will know the decoction is ready by the color first, then by the smell. The smell is the medicine waking up.' },
+      { speaker:'@sage.bramble',   text:'Can you decoct bark and root together in the same pot?' },
+      { speaker:'ICHABOD',         text:'You can. The bark takes longer — start it first. Add roots ten minutes in. Soft tissues last.' },
+      { speaker:'ICHABOD',         text:'I want you to make a decoction this week. Burdock alone is fine. Notice how the kitchen smells different than when you make tea. Make a note.' },
+      { speaker:'@rune.ashford',   text:'How long does a finished decoction keep?' },
+      { speaker:'ICHABOD',         text:'Refrigerated, three days. Tinctured and sealed, three years. The patience of long steeping pays in years, not minutes.' },
+      { speaker:'ICHABOD',         text:'Next week: <em>poultices</em>. Bring a small linen square. Or borrow one from your grandmother.' },
+    ],
+
+    // ── annotations (v2) ──
+    myAnnotations: [],
+    allCohortAnnotations: [],
+    activeLineId: null,
+    annotDraft: '',
+    annotFilter: 'all',
+    // v2: search + tags + free-form notes
+    ksSearch: '',
+    ksTagFilter: '',
+    ksFreeOpen: false,
+    ksFreeText: '',
+    ksFreeTitle: '',
+    ksFreeTags: '',
+    ksFreeEditId: null,
+    _tagKeywords: {
+      'preparation': ['simmer','decoction','infusion','steep','brew','soft water','distilled','minute'],
+      'identification': ['burdock','dandelion','marshmallow','sarsaparilla','bark','root','leaf','frond'],
+      'dosage': ['daily','dose','milliliter','spoon','cup','minute','hour','three days','three years'],
+      'patience': ['patience','slow','time','long','wait','years','minutes'],
+      'safety': ['caution','contraindication','allergy','pregnancy','child','interaction'],
+      'tradition': ['grandmother','elder','lineage','old','ancient','cohort','before'],
+    },
+
+    // ── shop ──
+    shopFilter: 'all',
+    cart: [],
+    products: [],
+
+    // ── archive ──
+    archiveItems: [],
+
+    // ── admin ──
+    adminTab: 'stream',
+    adminViewAs: 'admin',
+    adminBroadcastLive: true,
+
+    // ── computed ──
+    get cartTotal()           { return this.cart.reduce((s,p) => s + p.price, 0); },
+    get filteredShop()        {
+      const f = this.shopFilter;
+      if (f === 'all')      return this.products;
+      if (f === 'redfawn')  return this.products.filter(p => p.vendor === 'redfawn');
+      if (f === 'ichabods') return this.products.filter(p => p.vendor === 'ichabods');
+      return this.products.filter(p => p.cat === f);
+    },
+    get shopRedfawnCount()    { return this.products.filter(p=>p.vendor==='redfawn').length; },
+    get shopIchabodsCount()   { return this.products.filter(p=>p.vendor==='ichabods').length; },
+    get uniqueSessionsWithNotes() {
+      return new Set(this.myAnnotations.map(a => a.session)).size;
+    },
+    get filteredCohortAnnotations() {
+      if (this.annotFilter === 'all') return this.allCohortAnnotations;
+      return this.allCohortAnnotations.filter(a => a.by === this.annotFilter);
+    },
+
+    // v2: search + tag filter applied to user's own annotations
+    get filteredMyAnnotations() {
+      const s = (this.ksSearch || '').trim().toLowerCase();
+      const t = (this.ksTagFilter || '').trim();
+      let list = [...this.myAnnotations].reverse();
+      if (t) {
+        list = list.filter(a => (a.tags || []).includes(t));
+      }
+      if (s) {
+        list = list.filter(a => {
+          const noteText = (a.text || '').toLowerCase();
+          const quote = (this.transcriptLines.find(l => l.id === a.lineId)?.text || '').toLowerCase().replace(/<[^>]+>/g,'');
+          const title = (a.title || '').toLowerCase();
+          const tags  = (a.tags || []).join(' ').toLowerCase();
+          const session = (a.session || '').toLowerCase();
+          return noteText.includes(s) || quote.includes(s) || title.includes(s) || tags.includes(s) || session.includes(s);
+        });
+      }
+      return list;
+    },
+
+    // v2: all unique tags across user's notes
+    get availableTags() {
+      const set = new Set();
+      this.myAnnotations.forEach(a => (a.tags || []).forEach(t => set.add(t)));
+      return [...set].sort();
+    },
+
+    // ── helpers ──
+    rank(t) { return (this.roles.find(r=>r.id===t)||{rank:0}).rank; },
+    fmtTime(s) {
+      s = Math.max(0, Math.floor(s));
+      const m = Math.floor(s/60), sec = s%60;
+      return `${m}:${String(sec).padStart(2,'0')}`;
+    },
+    now() {
+      return new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true});
+    },
+
+    init() {
+      // Build product catalog (60% Red Fawn — 16 real products, 40% Ichabod's mockups)
+      const redfawn = [
+        { name:'Heart Glow — Cacao Herbal Blend', cat:'blend', price:18.00 },
+        { name:'EMBER — Massage Body Oil',         cat:'topical', price:12.00 },
+        { name:'M.O.T.H.E.R — Nipple Balm',        cat:'topical', price:12.00 },
+        { name:'PETAL — Sitz Bath',                cat:'tea', price:12.00 },
+        { name:'Herbal Postpartum Kit',            cat:'blend', price:49.00 },
+        { name:'Wholesale 1 lb Herbal Blend',      cat:'blend', price:64.00 },
+        { name:'Deep Forest Room + Linen Spray',   cat:'topical', price:12.50 },
+        { name:'WILDCRAFTED Solar Hydrosol',       cat:'topical', price:17.00 },
+        { name:'Yume 夢 — Dream Tea',               cat:'tea', price:15.00 },
+        { name:'Wort to Your Mother Long Sleeve',  cat:'other', price:29.00 },
+        { name:'Expansion Creates Possibility Tee',cat:'other', price:29.00 },
+        { name:'Right Moment Seed — Sticker',      cat:'other', price:4.25 },
+        { name:'Girl Moss — Sticker',              cat:'other', price:4.25 },
+        { name:'Rose World — 8.5x11 Print',        cat:'other', price:18.00 },
+        { name:'Year of the Wood Snake Print',     cat:'other', price:18.00 },
+        { name:'Right Moment Seed — Glossy Sticker',cat:'other',price:4.25 },
+      ];
+      const ichabods = [
+        { name:"Ichabod's Bone & Sinew Salve",      cat:'topical', price:24.00 },
+        { name:"Ichabod's Hearthroot Tincture",     cat:'blend',   price:26.00 },
+        { name:"Veiled Hour Facial Steam",          cat:'tea',     price:14.00 },
+        { name:"Blackthorn Liniment — Topical",     cat:'topical', price:22.00 },
+        { name:"Moss & Myrrh Compress Tea",         cat:'tea',     price:16.00 },
+        { name:"Apothecary's Cup — Daily Blend",    cat:'blend',   price:18.00 },
+        { name:"Mortar Balm — Sore Muscle",         cat:'topical', price:20.00 },
+        { name:"Old Light Cordial",                 cat:'blend',   price:28.00 },
+        { name:"Bittersweet Steam — Facial Soak",   cat:'tea',     price:15.00 },
+        { name:"Wormwood Eve — Bitters Blend",      cat:'blend',   price:24.00 },
+        { name:"Frost Fern Compress",               cat:'topical', price:19.00 },
+      ];
+      const allProducts = [
+        ...redfawn.map((p,i) => ({...p, id:'rf-'+i, vendor:'redfawn',  catLabel: this.catLabel(p.cat), hue: 35 + i*8})),
+        ...ichabods.map((p,i)=> ({...p, id:'ic-'+i, vendor:'ichabods', catLabel: this.catLabel(p.cat), hue: 110 + i*22}))
+      ];
+      this.products = allProducts;
+
+      // Cohort roster (for admin view)
+      this.cohortList = [
+        { user:'@willow.fern',    tier:'student',    joinedAt:'8:58 AM', notes:3, handRaised:false, online:true },
+        { user:'@sage.bramble',   tier:'student',    joinedAt:'9:02 AM', notes:5, handRaised:false, online:true },
+        { user:'@rune.ashford',   tier:'student',    joinedAt:'9:04 AM', notes:2, handRaised:false, online:true },
+        { user:'@orin.crane',     tier:'student',    joinedAt:'9:06 AM', notes:1, handRaised:false, online:true },
+        { user:'@mara.fieldsong', tier:'certified',  joinedAt:'8:55 AM', notes:0, handRaised:false, online:true },
+        { user:'@ichabod.crane',  tier:'instructor', joinedAt:'8:50 AM', notes:0, handRaised:false, online:true },
+      ];
+
+      // Initial chat
+      this.chatMessages = [
+        { user:'@willow.fern',   text:'Brewing now — twenty minutes in.', time:'9:08 AM' },
+        { user:'@sage.bramble',  text:'Burdock or dandelion this week?', time:'9:10 AM' },
+        { user:'@mara.fieldsong',text:'Last week I tried burdock with marshmallow — the marshmallow softened the bitterness.', time:'9:12 AM' },
+        { user:'@orin.crane',    text:'I wrote down "patience pays in years not minutes" twice.', time:'9:15 AM' },
+      ];
+
+      // Archive items (canvas-thumb sessions)
+      this.archiveItems = [
+        { id:'arc-3', unit:'Unit 3', title:'Infusions: Water and the Leaf',   date:'May 13', duration:'58:21', notesCount:84,  hue:140 },
+        { id:'arc-2', unit:'Unit 2', title:'Materia Medica — First Reading', date:'May 06', duration:'1:12:08', notesCount:67, hue:42 },
+        { id:'arc-1', unit:'Unit 1', title:'Welcome & The Slow Lineage',     date:'Apr 29', duration:'49:55', notesCount:54,  hue:25 },
+      ];
+
+      // Pre-seed some cohort annotations
+      const seedAnnotations = [
+        { by:'@willow.fern',   text:'patience pays in years not minutes — copy into permanent notes',                 lineIdx:3 },
+        { by:'@sage.bramble',  text:'soft water > distilled in a pinch — write this somewhere visible',               lineIdx:6 },
+        { by:'@orin.crane',    text:'the smell is the medicine waking up. love this phrasing.',                       lineIdx:7 },
+        { by:'@rune.ashford',  text:'bark first, then root, then leaf — order matters',                                lineIdx:9 },
+        { by:'@mara.fieldsong',text:'3 days fridge, 3 years tinctured — useful rule',                                  lineIdx:12 },
+      ];
+      this._seedAnnotations = seedAnnotations;
+
+      // Fullscreen listener
+      document.addEventListener('fullscreenchange', () => {
+        const wrap = document.getElementById('vpWrap');
+        this.vpFull = !!document.fullscreenElement || (wrap && wrap.classList.contains('vp-fs-fallback'));
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          const wrap = document.getElementById('vpWrap');
+          if (wrap && wrap.classList.contains('vp-fs-fallback')) {
+            wrap.classList.remove('vp-fs-fallback');
+            document.body.classList.remove('vp-fs-locked');
+            this.vpFull = false;
+          }
+        }
+      });
+
+      // Background simulators
+      this._scheduleTranscript();
+      this._scheduleReaction();
+      this._scheduleHand();
+      this._scheduleViewerFlux();
+      // Live edge time progression
+      setInterval(() => {
+        if (!this.vpPaused && this.vpIsLiveEdge) this.vpCurrentTime = this.vpDuration;
+        else if (!this.vpPaused) this.vpCurrentTime = Math.min(this.vpDuration, this.vpCurrentTime + 1);
+        this.vpDuration = Math.min(7200, this.vpDuration + 1);
+        if (this.vpIsLiveEdge) this.vpCurrentTime = this.vpDuration;
+      }, 1000);
+
+      // Render product thumbs after Alpine paints
+      this.$nextTick(() => { this.renderProductThumbs(); this.renderArchiveThumbs(); });
+
+      // Apply seeded annotations once first transcript lines are out
+      setTimeout(() => this._applySeededAnnotations(), 1200);
+    },
+
+    catLabel(c) {
+      return {blend:'blend', tea:'steam/soak', topical:'topical', other:'sundry'}[c] || c;
+    },
+
+    // ── routing helpers ──
+    enterPortal(tier) {
+      this.page = 'portal';
+      this.pendingTier = tier;
+      this.accessTier = 'none';
+      this.modalSuccess = false;
+    },
+    handleAccess(tier) {
+      this.pendingTier = tier;
+      this.modalSuccess = true;
+    },
+    navTo(p) {
+      const required = { knowledge: 'student' }[p];
+      if (required && this.rank(this.accessTier) < this.rank(required)) {
+        this.page = 'signin';
+        this.toast = 'Sign in as ' + required + ' to access';
+        setTimeout(() => this.toast='', 2400);
+      } else this.page = p;
+    },
+
+    // ── auth ──
+    signinReader() {
+      if (!this.signinEmail.trim()) return;
+      this.accessTier = 'student';
+      this.currentUser = '@' + this.signinEmail.split('@')[0].replace(/[^a-z0-9.]/gi,'');
+      this.signinEmail = '';
+      this.page = 'portal';
+      this.toast = 'Welcome, ' + this.currentUser;
+      setTimeout(() => this.toast='', 2400);
+    },
+    staffLogin() {
+      const u = this.staffUser.trim().toLowerCase();
+      const p = this.staffPass.trim();
+      if (u === 'admin' && p === 'admin') {
+        this.accessTier = 'admin'; this.currentUser = '@admin'; this.page = 'admin'; this.staffErr=''; this.staffUser=''; this.staffPass='';
+        this.toast = 'Signed in as Admin';
+      } else if (u === 'instructor' && p === 'instructor') {
+        this.accessTier = 'instructor'; this.currentUser = '@ichabod.crane'; this.page = 'admin'; this.staffErr=''; this.staffUser=''; this.staffPass='';
+        this.toast = 'Signed in as Instructor';
+      } else {
+        this.staffErr = 'Invalid credentials. Try admin/admin or instructor/instructor.';
+      }
+      setTimeout(() => this.toast='', 2400);
+    },
+    loginAs(u, p) { this.staffUser = u; this.staffPass = p; this.staffLogin(); this.demoOpen=false; },
+    adminLogout() { this.accessTier='none'; this.currentUser='@guest'; this.page='home'; },
+
+    // ── video controls ──
+    sendReaction(emoji) {
+      const count = 2 + Math.floor(Math.random()*2);
+      for (let i = 0; i < count; i++) {
+        this.vpFloating.push({ id: Date.now()+i, emoji, x: 15 + Math.random()*70 });
+      }
+      const user = (this.currentUser || '@you').replace('@','');
+      this.vpReactionFeed.push({ id: Date.now(), emoji, user, time: this.now() });
+      if (this.vpReactionFeed.length > 30) this.vpReactionFeed.shift();
+    },
+    toggleHand() {
+      this.vpHandRaised = !this.vpHandRaised;
+      if (this.vpHandRaised) {
+        this.vpRaisedHands.unshift({ user: this.currentUser || '@you', display: (this.currentUser||'You').replace('@',''), isMe: true });
+      } else {
+        this.vpRaisedHands = this.vpRaisedHands.filter(h => !h.isMe);
+      }
+    },
+    toggleFull() {
+      const el = document.getElementById('vpWrap');
+      if (!el) return;
+      const isFs = !!document.fullscreenElement || el.classList.contains('vp-fs-fallback');
+      if (!isFs) {
+        const req = el.requestFullscreen || el.webkitRequestFullscreen;
+        const try1 = req ? req.call(el) : Promise.reject('no api');
+        Promise.resolve(try1).then(() => this.vpFull=true).catch(() => {
+          el.classList.add('vp-fs-fallback'); document.body.classList.add('vp-fs-locked'); this.vpFull=true;
+        });
+      } else {
+        if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+        el.classList.remove('vp-fs-fallback'); document.body.classList.remove('vp-fs-locked'); this.vpFull=false;
+      }
+    },
+    onScrub(event) {
+      const rect = event.currentTarget.getBoundingClientRect();
+      const ratio = Math.max(0, Math.min(1, (event.clientX-rect.left)/rect.width));
+      this.vpCurrentTime = Math.floor(ratio * this.vpDuration);
+      this.vpIsLiveEdge = this.vpCurrentTime >= this.vpDuration - 3;
+    },
+    jumpToLive() { this.vpCurrentTime = this.vpDuration; this.vpIsLiveEdge = true; this.vpPaused = false; },
+
+    // ── chat ──
+    sendChat() {
+      const t = this.chatInput.trim();
+      if (!t) return;
+      this.chatMessages.push({ user: this.currentUser || '@you', text: t, time: this.now() });
+      this.chatInput = '';
+      this.$nextTick(() => { const el = document.getElementById('chatMsgs'); if (el) el.scrollTop = el.scrollHeight; });
+    },
+    simChat() {
+      const p = this.personas[Math.floor(Math.random()*this.personas.length)];
+      const msgs = [
+        "Brewing in the kitchen — smells like wet earth in the best way.",
+        "Question: dosage for a daily decoction?",
+        "Wrote that down twice.",
+        "Burdock + marshmallow + a little orange peel — try it.",
+        "My grandmother said the same thing about patience.",
+        "Cohort II had a beautiful thread on this — let me find it.",
+      ];
+      this.chatMessages.push({ user: p.user, text: msgs[Math.floor(Math.random()*msgs.length)], time: this.now() });
+    },
+    simHand() {
+      const p = this.personas.filter(pp=>pp.tier==='student' || pp.tier==='certified')[Math.floor(Math.random()*5)];
+      const existing = this.vpRaisedHands.find(h => h.user === p.user);
+      if (existing) {
+        this.vpRaisedHands = this.vpRaisedHands.filter(h => h.user !== p.user);
+      } else {
+        this.vpRaisedHands.push({ user: p.user, display: p.user.replace('@',''), isMe: false });
+        setTimeout(() => { this.vpRaisedHands = this.vpRaisedHands.filter(h => h.user !== p.user); }, 12000 + Math.random()*13000);
+      }
+    },
+
+    // ── transcript & annotations ──
+    emitTranscript() {
+      const next = this.transcriptScript[this.transcriptIdx % this.transcriptScript.length];
+      this.transcriptLines.push({
+        id: 'tl-' + Date.now() + '-' + this.transcriptIdx,
+        speaker: next.speaker,
+        text: next.text,
+        t: this.vpCurrentTime,
+      });
+      this.transcriptIdx++;
+      if (this.transcriptLines.length > 30) this.transcriptLines.shift();
+      this.$nextTick(() => {
+        const body = document.getElementById('transcriptBody');
+        if (body && !this.activeLineId) body.scrollTop = body.scrollHeight;
+      });
+    },
+
+    hasMyNote(lineId) {
+      return this.myAnnotations.some(a => a.lineId === lineId);
+    },
+    myNoteFor(lineId) {
+      return this.myAnnotations.find(a => a.lineId === lineId);
+    },
+    openAnnotForm(lineId) {
+      const existing = this.myNoteFor(lineId);
+      this.annotDraft = existing ? existing.text : '';
+      this.activeLineId = lineId;
+      this.$nextTick(() => { const r = this.$refs.annotInput; if (r) r.focus(); });
+    },
+    closeAnnotForm() {
+      this.activeLineId = null;
+      this.annotDraft = '';
+    },
+    saveAnnotation(lineId) {
+      const text = this.annotDraft.trim();
+      if (!text) { this.closeAnnotForm(); return; }
+      const existing = this.myAnnotations.find(a => a.lineId === lineId);
+      const session = 'Unit 4 · Decoctions';
+      const savedAt = this.now();
+      const line = this.transcriptLines.find(l => l.id === lineId);
+      const sourceText = (line ? line.text : '') + ' ' + text;
+      const autoTags = this.autoCategorize(sourceText);
+      if (existing) {
+        // Record evolution — push prior version to history
+        existing.history = existing.history || [];
+        existing.history.push({ text: existing.text, savedAt: existing.savedAt });
+        existing.text = text;
+        existing.savedAt = savedAt;
+        // Merge new auto-tags with existing
+        existing.tags = [...new Set([...(existing.tags || []), ...autoTags])];
+      } else {
+        const ann = {
+          id:'ann-'+Date.now(),
+          lineId, text,
+          by: this.currentUser || '@you',
+          tier: this.accessTier,
+          session, savedAt,
+          tags: autoTags,
+          history: [],
+          freeForm: false,
+        };
+        this.myAnnotations.push(ann);
+        this.allCohortAnnotations.push({ ...ann });
+      }
+      this.toast = 'Saved to your knowledge store';
+      setTimeout(() => this.toast='', 2000);
+      this.closeAnnotForm();
+    },
+
+    // v2: auto-categorize note text against keyword dictionary
+    autoCategorize(text) {
+      const lower = (text || '').toLowerCase();
+      const tags = [];
+      for (const [tag, keywords] of Object.entries(this._tagKeywords)) {
+        if (keywords.some(k => lower.includes(k))) tags.push(tag);
+      }
+      return tags;
+    },
+
+    // v2: free-form note (not tied to transcript line)
+    saveFreeNote() {
+      const text = (this.ksFreeText || '').trim();
+      if (!text) { this.ksFreeOpen = false; return; }
+      const title = (this.ksFreeTitle || '').trim();
+      const tagInput = (this.ksFreeTags || '').split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+      const autoTags = this.autoCategorize(text + ' ' + title);
+      const tags = [...new Set([...tagInput, ...autoTags])];
+      const savedAt = this.now();
+      if (this.ksFreeEditId) {
+        const ex = this.myAnnotations.find(a => a.id === this.ksFreeEditId);
+        if (ex) {
+          ex.history = ex.history || [];
+          ex.history.push({ text: ex.text, savedAt: ex.savedAt });
+          ex.text = text;
+          ex.title = title;
+          ex.tags = tags;
+          ex.savedAt = savedAt;
+        }
+      } else {
+        const ann = {
+          id: 'free-'+Date.now(),
+          lineId: null, text, title,
+          by: this.currentUser || '@you',
+          tier: this.accessTier,
+          session: 'Free Note', savedAt,
+          tags, history: [], freeForm: true,
+        };
+        this.myAnnotations.push(ann);
+        this.allCohortAnnotations.push({ ...ann });
+      }
+      this.ksFreeOpen = false;
+      this.ksFreeEditId = null;
+      this.ksFreeText = '';
+      this.ksFreeTitle = '';
+      this.ksFreeTags = '';
+      this.toast = 'Note kept in your volume';
+      setTimeout(() => this.toast='', 2000);
+    },
+
+    openFreeNoteEdit(ann) {
+      this.ksFreeEditId = ann.id;
+      this.ksFreeText = ann.text;
+      this.ksFreeTitle = ann.title || '';
+      this.ksFreeTags = (ann.tags || []).join(', ');
+      this.ksFreeOpen = true;
+    },
+
+    addTagToAnnotation(ann) {
+      const tag = prompt('Add a tag to this note:', '');
+      if (!tag) return;
+      const cleaned = tag.trim().toLowerCase();
+      if (!cleaned) return;
+      ann.tags = [...new Set([...(ann.tags || []), cleaned])];
+      this.toast = 'Tag added: ' + cleaned;
+      setTimeout(() => this.toast='', 1800);
+    },
+    deleteAnnotation(id) {
+      const ann = this.myAnnotations.find(a => a.id === id);
+      this.myAnnotations = this.myAnnotations.filter(a => a.id !== id);
+      if (ann) this.allCohortAnnotations = this.allCohortAnnotations.filter(a => a.id !== id);
+      this.toast = 'Note removed';
+      setTimeout(() => this.toast='', 1800);
+    },
+    simCohortAnnotation() {
+      const persons = this.personas.filter(p=>p.tier==='student' || p.tier==='certified');
+      const p = persons[Math.floor(Math.random()*persons.length)];
+      const lines = this.transcriptLines.filter(l => !l.speaker.startsWith('@'));
+      if (lines.length === 0) return;
+      const line = lines[Math.floor(Math.random()*lines.length)];
+      const notes = [
+        'underline this. especially in the kitchen.',
+        'try with marshmallow root next week',
+        'connect to grandmother\'s blackberry trick',
+        'twenty minutes minimum — set timer',
+        'this is the through-line of the unit',
+        'come back to this when reviewing for cert',
+      ];
+      const ann = {
+        id: 'ann-cohort-'+Date.now()+Math.random(),
+        lineId: line.id, text: notes[Math.floor(Math.random()*notes.length)],
+        by: p.user, tier: p.tier, session: 'Unit 4 · Decoctions', savedAt: this.now(),
+      };
+      this.allCohortAnnotations.push(ann);
+      const u = this.cohortList.find(u => u.user === p.user);
+      if (u) u.notes++;
+    },
+    _applySeededAnnotations() {
+      // Only seed if transcript has lines
+      if (this.transcriptLines.length < this._seedAnnotations.length) {
+        // Force emit enough lines for seeding
+        while (this.transcriptLines.length < this._seedAnnotations.length + 1) this.emitTranscript();
+      }
+      this._seedAnnotations.forEach((seed, i) => {
+        const line = this.transcriptLines[seed.lineIdx];
+        if (!line) return;
+        const persona = this.personas.find(p => p.user === seed.by);
+        const ann = {
+          id: 'ann-seed-'+i, lineId: line.id, text: seed.text,
+          by: seed.by, tier: persona ? persona.tier : 'student',
+          session: 'Unit 4 · Decoctions', savedAt: this.now(),
+        };
+        this.allCohortAnnotations.push(ann);
+      });
+    },
+
+    // ── shop ──
+    addToCart(p) {
+      this.cart.push(p);
+      this.toast = 'Added: ' + p.name.slice(0,32) + (p.name.length > 32 ? '…' : '');
+      setTimeout(() => this.toast='', 2000);
+    },
+
+    // ── canvas renderings ──
+    startCanvas() {
+      const c = document.getElementById('vpCanvas');
+      if (!c || this._canvasStarted) return;
+      this._canvasStarted = true;
+      const setSize = () => { c.width = c.offsetWidth || 800; c.height = c.offsetHeight || 450; };
+      setSize();
+      window.addEventListener('resize', setSize);
+      const ctx = c.getContext('2d');
+      // Apothecary palette
+      const palette = ['#3F331E','#5B4A2B','#A4471C','#2E4632','#C8902A','#6E1F2A','#8A7A65','#FBF6EC'];
+      let f=0, cx=0.5, cy=0.5, tx=0.5, ty=0.5, lx=0.5, ly=0.5;
+      let color=palette[0], bw=4, isDrawing=true;
+      ctx.fillStyle='#1c1815'; ctx.fillRect(0,0,c.width,c.height);
+      const tick = () => {
+        if (!this.vpPaused && this.adminBroadcastLive) {
+          const w=c.width, h=c.height;
+          f++;
+          cx += (tx-cx)*0.025; cy += (ty-cy)*0.025;
+          if (isDrawing) {
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = bw;
+            ctx.lineCap = 'round';
+            ctx.globalAlpha = 0.78;
+            ctx.moveTo(lx*w, ly*h);
+            ctx.lineTo(cx*w, cy*h);
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+          }
+          lx = cx; ly = cy;
+          if (f % (100 + Math.floor(Math.random()*80)) === 0) {
+            tx = 0.1 + Math.random()*0.8; ty = 0.15 + Math.random()*0.7;
+          }
+          if (f % 150 === 0) {
+            isDrawing = !isDrawing;
+            if (isDrawing) { color = palette[Math.floor(Math.random()*palette.length)]; bw = 2 + Math.random()*7; }
+          }
+          // Cursor
+          ctx.save();
+          ctx.globalAlpha = 0.7;
+          ctx.beginPath();
+          ctx.arc(cx*w, cy*h, 6, 0, Math.PI*2);
+          ctx.strokeStyle='#FBF6EC'; ctx.lineWidth=1.2;
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(cx*w, cy*h, 2, 0, Math.PI*2);
+          ctx.fillStyle='#FBF6EC'; ctx.fill();
+          ctx.restore();
+          if (f % 220 === 0) this.vpViewers = Math.max(15, this.vpViewers + Math.floor(Math.random()*5)-2);
+        }
+        requestAnimationFrame(tick);
+      };
+      tick();
+    },
+    startPreviewCanvas() {
+      const c = document.getElementById('lpCanvas');
+      if (!c || this._lpStarted) return;
+      this._lpStarted = true;
+      const setSize = () => { c.width = c.offsetWidth || 480; c.height = c.offsetHeight || 270; };
+      setSize();
+      window.addEventListener('resize', setSize);
+      const ctx = c.getContext('2d');
+      const palette = ['#3F331E','#5B4A2B','#A4471C','#2E4632','#C8902A','#6E1F2A'];
+      let f=0, cx=0.5, cy=0.5, tx=0.5, ty=0.5, lx=0.5, ly=0.5;
+      let color=palette[0], bw=3, isDrawing=true;
+      ctx.fillStyle='#1c1815'; ctx.fillRect(0,0,c.width,c.height);
+      const tick = () => {
+        if (this.adminBroadcastLive && !this.vpPaused) {
+          const w=c.width, h=c.height;
+          f++;
+          cx += (tx-cx)*0.04; cy += (ty-cy)*0.04;
+          if (isDrawing) {
+            ctx.beginPath();
+            ctx.strokeStyle=color; ctx.lineWidth=bw; ctx.lineCap='round';
+            ctx.globalAlpha=0.78;
+            ctx.moveTo(lx*w, ly*h); ctx.lineTo(cx*w, cy*h);
+            ctx.stroke();
+            ctx.globalAlpha=1;
+          }
+          lx=cx; ly=cy;
+          if (f%(80+Math.floor(Math.random()*60))===0){tx=0.1+Math.random()*0.8;ty=0.15+Math.random()*0.7;}
+          if (f%110===0){isDrawing=!isDrawing;if(isDrawing){color=palette[Math.floor(Math.random()*palette.length)];bw=2+Math.random()*5;}}
+        }
+        requestAnimationFrame(tick);
+      };
+      tick();
+    },
+    renderProductThumbs() {
+      this.products.forEach(p => {
+        const c = document.getElementById('pthumb-' + p.id);
+        if (!c) return;
+        const w = c.width = c.offsetWidth || 240;
+        const h = c.height = c.offsetHeight || 240;
+        const ctx = c.getContext('2d');
+
+        // Background: aged paper gradient
+        const g = ctx.createLinearGradient(0,0,w,h);
+        g.addColorStop(0, '#F3E6C8');
+        g.addColorStop(1, '#E6D2A3');
+        ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+
+        // Gilded inner border
+        ctx.strokeStyle = '#A37A28';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(4, 4, w-8, h-8);
+        ctx.strokeStyle = 'rgba(107,78,31,0.6)';
+        ctx.lineWidth = 0.6;
+        ctx.strokeRect(7, 7, w-14, h-14);
+
+        ctx.save();
+        ctx.translate(w/2, h/2);
+
+        // Pick botanical type by category
+        const inkColor = p.vendor === 'redfawn' ? '#8F3818' : '#3A4E2E';
+        const accentColor = '#9B5C5A';
+        const goldColor = '#A37A28';
+
+        ctx.strokeStyle = inkColor;
+        ctx.lineWidth = 1.6;
+        ctx.lineCap = 'round';
+
+        if (p.cat === 'blend') {
+          // Rose with stem
+          // Stem
+          ctx.beginPath();
+          ctx.moveTo(0, h*0.32);
+          ctx.bezierCurveTo(w*0.04, h*0.12, -w*0.04, -h*0.08, 0, -h*0.20);
+          ctx.stroke();
+          // Side leaves
+          for (let i=0;i<3;i++){
+            const yOff = h*0.08 - i*h*0.12;
+            const side = i % 2 === 0 ? 1 : -1;
+            ctx.beginPath();
+            ctx.ellipse(side*w*0.08, yOff, w*0.09, w*0.035, side>0 ? -0.4 : 0.4, 0, Math.PI*2);
+            ctx.stroke();
+          }
+          // Rose head (spiral petals)
+          ctx.save();
+          ctx.translate(0, -h*0.22);
+          ctx.fillStyle = accentColor;
+          ctx.globalAlpha = 0.85;
+          // outer petals
+          for (let a=0;a<8;a++){
+            const ang = (a/8)*Math.PI*2;
+            ctx.beginPath();
+            ctx.ellipse(Math.cos(ang)*w*0.05, Math.sin(ang)*w*0.05, w*0.06, w*0.04, ang, 0, Math.PI*2);
+            ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+          // inner
+          ctx.fillStyle = '#804342';
+          ctx.beginPath(); ctx.arc(0, 0, w*0.05, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = goldColor;
+          ctx.beginPath(); ctx.arc(0, 0, w*0.018, 0, Math.PI*2); ctx.fill();
+          ctx.restore();
+        } else if (p.cat === 'tea') {
+          // Fern frond
+          ctx.beginPath();
+          ctx.moveTo(0, h*0.30);
+          ctx.bezierCurveTo(w*0.05, h*0.10, -w*0.05, -h*0.10, 0, -h*0.30);
+          ctx.stroke();
+          // Frond leaflets
+          for (let i=0;i<7;i++){
+            const t = i/6;
+            const y = h*0.28 - t*h*0.58;
+            const size = w*0.10 * (1 - Math.abs(t-0.5)*0.4);
+            // Left frond
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.quadraticCurveTo(-w*0.10, y-h*0.02, -size*1.2, y-h*0.01);
+            ctx.stroke();
+            // Right frond
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.quadraticCurveTo(w*0.10, y-h*0.02, size*1.2, y-h*0.01);
+            ctx.stroke();
+          }
+          // Topper berry
+          ctx.fillStyle = accentColor;
+          ctx.beginPath(); ctx.arc(0, -h*0.32, w*0.025, 0, Math.PI*2); ctx.fill();
+        } else if (p.cat === 'topical') {
+          // Apothecary vial
+          ctx.fillStyle = '#F8EFD6';
+          ctx.beginPath();
+          ctx.moveTo(-w*0.06, -h*0.28);
+          ctx.lineTo(w*0.06, -h*0.28);
+          ctx.lineTo(w*0.06, -h*0.22);
+          ctx.lineTo(w*0.10, -h*0.20);
+          ctx.lineTo(w*0.10, h*0.20);
+          ctx.lineTo(w*0.08, h*0.30);
+          ctx.lineTo(-w*0.08, h*0.30);
+          ctx.lineTo(-w*0.10, h*0.20);
+          ctx.lineTo(-w*0.10, -h*0.20);
+          ctx.lineTo(-w*0.06, -h*0.22);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+          // Liquid line
+          ctx.strokeStyle = goldColor;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(-w*0.08, h*0.05);
+          ctx.lineTo(w*0.08, h*0.05);
+          ctx.stroke();
+          // Cork
+          ctx.fillStyle = '#6B4E1F';
+          ctx.fillRect(-w*0.05, -h*0.32, w*0.10, h*0.05);
+          // Label band
+          ctx.fillStyle = '#FFF8E0';
+          ctx.fillRect(-w*0.09, -h*0.08, w*0.18, h*0.08);
+          ctx.strokeStyle = inkColor;
+          ctx.lineWidth = 0.7;
+          ctx.strokeRect(-w*0.09, -h*0.08, w*0.18, h*0.08);
+        } else {
+          // Generic ornament — branch with berries
+          ctx.beginPath();
+          ctx.moveTo(0, h*0.28);
+          ctx.bezierCurveTo(w*0.06, h*0.08, -w*0.06, -h*0.10, 0, -h*0.26);
+          ctx.stroke();
+          for (let i=0;i<5;i++){
+            const yOff = h*0.18 - i*h*0.10;
+            const side = i % 2 === 0 ? 1 : -1;
+            ctx.beginPath();
+            ctx.ellipse(side*w*0.05, yOff, w*0.07, w*0.025, side>0 ? -0.5 : 0.5, 0, Math.PI*2);
+            ctx.stroke();
+          }
+          ctx.fillStyle = accentColor;
+          ctx.beginPath(); ctx.arc(0, -h*0.28, w*0.02, 0, Math.PI*2); ctx.fill();
+          ctx.beginPath(); ctx.arc(w*0.03, -h*0.25, w*0.018, 0, Math.PI*2); ctx.fill();
+        }
+
+        ctx.restore();
+
+        // Vintage vignette
+        const vg = ctx.createRadialGradient(w/2,h/2,h*0.3,w/2,h/2,h*0.7);
+        vg.addColorStop(0,'rgba(0,0,0,0)');
+        vg.addColorStop(1, 'rgba(31,24,18,0.22)');
+        ctx.fillStyle = vg; ctx.fillRect(0,0,w,h);
+
+        // Foxing speckles
+        ctx.fillStyle = 'rgba(107,78,31,0.10)';
+        for (let i=0;i<14;i++){
+          ctx.beginPath();
+          ctx.arc(Math.random()*w, Math.random()*h, Math.random()*1.4 + 0.4, 0, Math.PI*2);
+          ctx.fill();
+        }
+      });
+    },
+    renderArchiveThumbs() {
+      const renderOne = (id, item) => {
+        const c = document.getElementById(id);
+        if (!c) return;
+        const w = c.width = c.offsetWidth || 320;
+        const h = c.height = c.offsetHeight || 180;
+        const ctx = c.getContext('2d');
+        const g = ctx.createLinearGradient(0,0,w,h);
+        g.addColorStop(0, `hsl(${item.hue}, 28%, 22%)`);
+        g.addColorStop(1, `hsl(${(item.hue+50)%360}, 32%, 14%)`);
+        ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+        // brush strokes
+        const colors = [`hsl(${item.hue},45%,55%)`,`hsl(${(item.hue+25)%360},38%,48%)`,`hsl(${(item.hue+180)%360},22%,70%)`,'rgba(251,246,236,0.7)'];
+        for (let i=0;i<11;i++){
+          ctx.beginPath();
+          ctx.strokeStyle = colors[Math.floor(Math.random()*colors.length)];
+          ctx.lineWidth = 2 + Math.random()*6;
+          ctx.lineCap='round'; ctx.globalAlpha = 0.6 + Math.random()*0.35;
+          const x1=Math.random()*w,y1=Math.random()*h;
+          ctx.moveTo(x1,y1); ctx.lineTo(x1+(Math.random()-0.5)*w*0.5, y1+(Math.random()-0.5)*h*0.5);
+          ctx.stroke();
+        }
+        ctx.globalAlpha=1;
+        const vg = ctx.createRadialGradient(w/2,h/2,h*0.4,w/2,h/2,h);
+        vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,0.55)');
+        ctx.fillStyle=vg; ctx.fillRect(0,0,w,h);
+      };
+      this.archiveItems.forEach(item => {
+        renderOne('archthumb-' + item.id, item);
+        renderOne('archthumb-mgr-' + item.id, item);
+      });
+    },
+
+    // ── background simulators ──
+    _scheduleTranscript() {
+      const go = () => {
+        if (this.adminBroadcastLive && !this.vpPaused) this.emitTranscript();
+        setTimeout(go, 6000 + Math.random()*8000);
+      };
+      // Seed a few lines immediately so transcript isn't empty
+      setTimeout(() => { this.emitTranscript(); this.emitTranscript(); this.emitTranscript(); }, 500);
+      setTimeout(go, 4000);
+    },
+    _scheduleReaction() {
+      const go = () => {
+        if (this.page==='portal' && this.accessTier!=='none' && !this.vpPaused) {
+          const user = this.personas[Math.floor(Math.random()*5)].user.replace('@','');
+          const emoji = this.vpEmojis[Math.floor(Math.random()*this.vpEmojis.length)];
+          for (let i=0;i<1+Math.floor(Math.random()*2);i++) {
+            this.vpFloating.push({ id: Date.now()+i, emoji, x: 10+Math.random()*80 });
+          }
+          this.vpReactionFeed.push({ id: Date.now(), emoji, user, time: this.now() });
+          if (this.vpReactionFeed.length > 30) this.vpReactionFeed.shift();
+        }
+        setTimeout(go, 5000 + Math.random()*7000);
+      };
+      setTimeout(go, 6000);
+    },
+    _scheduleHand() {
+      const go = () => {
+        if (this.page==='portal' && this.accessTier!=='none') this.simHand();
+        setTimeout(go, 15000 + Math.random()*15000);
+      };
+      setTimeout(go, 12000);
+    },
+    _scheduleViewerFlux() {
+      setInterval(() => {
+        const swing = Math.floor(Math.random()*7) - 2;
+        this.vpViewers = Math.max(12, this.vpViewers + swing);
+      }, 8000);
+    },
+
+    // ── Scenarios ──
+    playScenario(id) {
+      this.demoOpen = false;
+      const sc = {
+        'first-class': [
+          { set:{ page:'portal', accessTier:'student', currentUser:'@willow.fern' }},
+          { narrate:'A new student arrives in their first class.' }, { wait: 2400 },
+          { narrate:'Transcription scrolls in line by line.' }, { wait: 2200 },
+          { narrate:'They click a line to add a cursive annotation.' }, { wait: 1800 },
+          { fn: () => { const line = this.transcriptLines[3] || this.transcriptLines[0]; if (line) this.openAnnotForm(line.id); }},
+          { wait: 800 },
+          { fn: () => { this.annotDraft = 'patience pays in years not minutes — copy into permanent notes'; }},
+          { wait: 1800 },
+          { fn: () => { const line = this.transcriptLines[3] || this.transcriptLines[0]; if (line) this.saveAnnotation(line.id); }},
+          { narrate:'The note saves to their knowledge store.' }, { wait: 1800 },
+          { set:{ page:'knowledge' }},
+          { narrate:'They open their store and see it waiting there.' },
+        ],
+        'instructor-view': [
+          { set:{ page:'admin', accessTier:'instructor', currentUser:'@ichabod.crane', adminTab:'annotations' }},
+          { narrate:'The instructor opens the cohort knowledge store.' }, { wait: 2400 },
+          { narrate:'Every annotation from every student, indexed by line.' }, { wait: 2200 },
+          { fn: () => { this.simCohortAnnotation(); }},
+          { wait: 1200 },
+          { fn: () => { this.simCohortAnnotation(); }},
+          { narrate:'Notes arrive in real time as the class takes them.' },
+        ],
+      };
+      const steps = sc[id]; if (!steps) return;
+      let i = 0;
+      const run = () => {
+        if (i >= steps.length) {
+          this.scenarioNarration = '';
+          this.toast = 'Scenario complete';
+          setTimeout(() => this.toast='', 1800);
+          return;
+        }
+        const s = steps[i++];
+        if (s.set) Object.assign(this, s.set);
+        if (s.narrate) this.scenarioNarration = s.narrate;
+        if (s.fn) s.fn();
+        setTimeout(run, s.wait || 1400);
+      };
+      run();
+    },
+
+    // ── Reset ──
+    resetAll() {
+      this.page='home'; this.accessTier='none'; this.pendingTier='none'; this.modalSuccess=false;
+      this.currentUser='@guest'; this.signinEmail=''; this.staffUser=''; this.staffPass=''; this.staffErr='';
+      this.demoOpen=false; this.toast=''; this.scenarioNarration='';
+      this.vpMin=false; this.vpFull=false; this.vpPaused=false; this.vpViewers=23;
+      this.vpHandRaised=false; this.vpRaisedHands=[]; this.vpFloating=[]; this.vpReactionFeed=[];
+      this.vpCurrentTime=1740; this.vpDuration=1800; this.vpIsLiveEdge=true;
+      this.transcriptLines=[]; this.transcriptIdx=0;
+      this.myAnnotations=[]; this.allCohortAnnotations=[];
+      this.activeLineId=null; this.annotDraft='';
+      this.shopFilter='all'; this.cart=[];
+      this.adminTab='stream'; this.adminViewAs='admin'; this.adminBroadcastLive=true;
+      const wrap = document.getElementById('vpWrap');
+      if (wrap) wrap.classList.remove('vp-fs-fallback');
+      document.body.classList.remove('vp-fs-locked');
+      if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+      this.init();
+    },
+  };
+}
+</script>
+
+</body>
+</html>
